@@ -1,30 +1,50 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
+import Button from './button'
+import {
+  onPressButton,
+  onReleaseButton
+} from './actions'
 
-const Button = () => {
-  console.log('buton')
+const nine = new Array(9).fill(true)
 
-  return (
-    <div className="button">
-      Click Me
-    </div>
-  )
+class Main extends React.Component {
+  componentDidMount(){
+
+  }
+
+  render(){
+    return (
+      <div className="buttons-container">
+        {
+          nine.map((item, index) => (
+            <Button
+              isPressed={this.props.pressedButtons[index]}
+              onPressButton={this.props.onPressButton}
+              onReleaseButton={this.props.onReleaseButton}
+              data={this.props.audioData[index]}
+              index={index}
+              key={`button-${index}`}
+            />
+          ))
+        }
+      </div>
+    )
+  }
 }
 
-const Main = () => (
-  <div>
-    <Button />
-  </div>
-)
-
-const mapStateToProps = ( state ) => ({
+const mapStateToProps = state => ({
+  audioData: state.MainReducer.audioData,
+  pressedButtons: state.MainReducer.pressedButtons,
 })
 
-const mapDispatchToProps = ( dispatch ) => bindActionCreators({
-}, dispatch )
+const mapDispatchToProps = dispatch => bindActionCreators({
+  onPressButton,
+  onReleaseButton,
+}, dispatch)
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
-)( Main )
+  mapDispatchToProps,
+)(Main)

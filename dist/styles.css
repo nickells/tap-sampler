@@ -1,4 +1,21 @@
 body {
   background: lightgrey;
   font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+.sampler-button {
+  user-select: none;
+  display: inline-block;
+  width: calc(100% / 3);
+  height: calc(100% / 3);
+  box-sizing: border-box;
+  border: 1px solid transparent;
+}
+.sampler-button.is-touched {
+  border: 1px solid black;
+}
+.buttons-container {
+  width: 100vw;
+  height: 100vw;
 }

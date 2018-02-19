@@ -34804,13 +34804,31 @@ exports['default'] = thunk;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var initialState = {};
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _actions = __webpack_require__(449);
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var initialState = {
+  audioData: [],
+  pressedButtons: {}
+};
 
 exports.default = function () {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
   var action = arguments[1];
 
   switch (action.type) {
+    case _actions.ON_PRESS_BUTTON:
+      return _extends({}, state, {
+        pressedButtons: _extends({}, state.pressedButtons, _defineProperty({}, action.index, true))
+      });
+    case _actions.ON_RELEASE_BUTTON:
+      return _extends({}, state, {
+        pressedButtons: _extends({}, state.pressedButtons, _defineProperty({}, action.index, false))
+      });
     default:
       return state;
   }
@@ -34827,6 +34845,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _react = __webpack_require__(10);
 
 var _react2 = _interopRequireDefault(_react);
@@ -34835,35 +34855,212 @@ var _reactRedux = __webpack_require__(156);
 
 var _redux = __webpack_require__(109);
 
+var _button = __webpack_require__(448);
+
+var _button2 = _interopRequireDefault(_button);
+
+var _actions = __webpack_require__(449);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Button = function Button() {
-  console.log('buton');
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-  return _react2.default.createElement(
-    'div',
-    { className: 'button' },
-    'Click Me'
-  );
-};
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-var Main = function Main() {
-  return _react2.default.createElement(
-    'div',
-    null,
-    _react2.default.createElement(Button, null)
-  );
-};
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var nine = new Array(9).fill(true);
+
+var Main = function (_React$Component) {
+  _inherits(Main, _React$Component);
+
+  function Main() {
+    _classCallCheck(this, Main);
+
+    return _possibleConstructorReturn(this, (Main.__proto__ || Object.getPrototypeOf(Main)).apply(this, arguments));
+  }
+
+  _createClass(Main, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {}
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this2 = this;
+
+      return _react2.default.createElement(
+        'div',
+        { className: 'buttons-container' },
+        nine.map(function (item, index) {
+          return _react2.default.createElement(_button2.default, {
+            isPressed: _this2.props.pressedButtons[index],
+            onPressButton: _this2.props.onPressButton,
+            onReleaseButton: _this2.props.onReleaseButton,
+            data: _this2.props.audioData[index],
+            index: index,
+            key: 'button-' + index
+          });
+        })
+      );
+    }
+  }]);
+
+  return Main;
+}(_react2.default.Component);
 
 var mapStateToProps = function mapStateToProps(state) {
-  return {};
+  return {
+    audioData: state.MainReducer.audioData,
+    pressedButtons: state.MainReducer.pressedButtons
+  };
 };
 
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
-  return (0, _redux.bindActionCreators)({}, dispatch);
+  return (0, _redux.bindActionCreators)({
+    onPressButton: _actions.onPressButton,
+    onReleaseButton: _actions.onReleaseButton
+  }, dispatch);
 };
 
 exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Main);
+
+/***/ }),
+/* 448 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(10);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Button = function (_React$Component) {
+  _inherits(Button, _React$Component);
+
+  function Button(props) {
+    _classCallCheck(this, Button);
+
+    var _this = _possibleConstructorReturn(this, (Button.__proto__ || Object.getPrototypeOf(Button)).call(this, props));
+
+    _this.onPressButton = _this.props.onPressButton.bind(_this, _this.props.index);
+    _this.onReleaseButton = _this.props.onReleaseButton.bind(_this, _this.props.index);
+    return _this;
+  }
+
+  _createClass(Button, [{
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          isPressed = _props.isPressed,
+          data = _props.data,
+          onPressButton = _props.onPressButton,
+          onReleaseButton = _props.onReleaseButton,
+          index = _props.index;
+
+      return _react2.default.createElement(
+        'div',
+        {
+          className: 'sampler-button',
+          onMouseDown: this.onPressButton,
+          onTouchStart: this.onPressButton,
+          onMouseUp: this.onReleaseButton // todo: move to body to catch exterior clicks
+          , onTouchEnd: this.onReleaseButton,
+          style: isPressed ? { border: '1px solid black' } : null
+        },
+        'Click Me??'
+      );
+    }
+  }]);
+
+  return Button;
+}(_react2.default.Component);
+
+exports.default = Button;
+
+/***/ }),
+/* 449 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
+var ON_PRESS_BUTTON = exports.ON_PRESS_BUTTON = 'ON_PRESS_BUTTON';
+
+var onPressButton = exports.onPressButton = function onPressButton(index) {
+  return function () {
+    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(dispatch, getState) {
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              console.log('press');
+              dispatch({
+                type: ON_PRESS_BUTTON,
+                index: index
+              });
+
+            case 2:
+            case 'end':
+              return _context.stop();
+          }
+        }
+      }, _callee, undefined);
+    }));
+
+    return function (_x, _x2) {
+      return _ref.apply(this, arguments);
+    };
+  }();
+};
+
+var ON_RELEASE_BUTTON = exports.ON_RELEASE_BUTTON = 'ON_RELEASE_BUTTON';
+
+var onReleaseButton = exports.onReleaseButton = function onReleaseButton(index) {
+  return function () {
+    var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(dispatch, getState) {
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              dispatch({
+                type: ON_RELEASE_BUTTON,
+                index: index
+              });
+
+            case 1:
+            case 'end':
+              return _context2.stop();
+          }
+        }
+      }, _callee2, undefined);
+    }));
+
+    return function (_x3, _x4) {
+      return _ref2.apply(this, arguments);
+    };
+  }();
+};
 
 /***/ })
 /******/ ]);

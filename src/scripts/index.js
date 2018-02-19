@@ -9,7 +9,7 @@ import Main from './main'
 
 
 class Root extends React.Component {
-  constructor(props){
+  constructor(props) {
     super(props)
   }
 
