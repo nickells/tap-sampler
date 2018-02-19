@@ -2,9 +2,13 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import Button from './button'
+import RecordSwitch from './recordswitch'
 import {
   onPressButton,
-  onReleaseButton
+  onReleaseButton,
+  enterRecordMode,
+  exitRecordMode,
+  toggleRecordMode
 } from './actions'
 
 const nine = new Array(9).fill(true)
@@ -16,20 +20,29 @@ class Main extends React.Component {
 
   render(){
     return (
-      <div className="buttons-container">
-        {
-          nine.map((item, index) => (
-            <Button
-              isPressed={this.props.pressedButtons[index]}
-              onPressButton={this.props.onPressButton}
-              onReleaseButton={this.props.onReleaseButton}
-              data={this.props.audioData[index]}
-              index={index}
-              key={`button-${index}`}
-            />
-          ))
-        }
-      </div>
+      <React.Fragment>
+        <div className="buttons-container">
+          {
+            nine.map((item, index) => (
+              <Button
+                isPressed={this.props.pressedButtons[index]}
+                onPress={this.props.onPressButton}
+                onRelease={this.props.onReleaseButton}
+                data={this.props.audioData[index]}
+                index={index}
+                key={`button-${index}`}
+                isRecordModeActive={this.props.isRecordModeActive}
+              />
+            ))
+          }
+        </div>
+        <RecordSwitch
+          isPressed={this.props.isRecordModeActive}
+          onPress={this.props.enterRecordMode}
+          onRelease={this.props.exitRecordMode}
+          onClick={this.props.toggleRecordMode}
+        />
+      </React.Fragment>
     )
   }
 }
@@ -37,11 +50,15 @@ class Main extends React.Component {
 const mapStateToProps = state => ({
   audioData: state.MainReducer.audioData,
   pressedButtons: state.MainReducer.pressedButtons,
+  isRecordModeActive: state.MainReducer.isRecordModeActive
 })
 
 const mapDispatchToProps = dispatch => bindActionCreators({
   onPressButton,
   onReleaseButton,
+  enterRecordMode,
+  exitRecordMode,
+  toggleRecordMode
 }, dispatch)
 
 export default connect(

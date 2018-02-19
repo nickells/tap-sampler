@@ -7,6 +7,8 @@ body {
 .sampler-button {
   user-select: none;
   display: inline-block;
+  text-align: center;
+  flex-basis: calc(100% / 3);
   width: calc(100% / 3);
   height: calc(100% / 3);
   box-sizing: border-box;
@@ -15,7 +17,12 @@ body {
 .sampler-button.is-touched {
   border: 1px solid black;
 }
+.sampler-button.is-record-mode {
+  background-color: white;
+}
 .buttons-container {
   width: 100vw;
   height: 100vw;
+  display: flex;
+  flex-wrap: wrap;
 }

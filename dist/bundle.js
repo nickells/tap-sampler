@@ -34813,7 +34813,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 var initialState = {
   audioData: [],
-  pressedButtons: {}
+  pressedButtons: {},
+  isRecordModeActive: false
 };
 
 exports.default = function () {
@@ -34828,6 +34829,18 @@ exports.default = function () {
     case _actions.ON_RELEASE_BUTTON:
       return _extends({}, state, {
         pressedButtons: _extends({}, state.pressedButtons, _defineProperty({}, action.index, false))
+      });
+    case _actions.ENTER_RECORD_MODE:
+      return _extends({}, state, {
+        isRecordModeActive: true
+      });
+    case _actions.EXIT_RECORD_MODE:
+      return _extends({}, state, {
+        isRecordModeActive: false
+      });
+    case _actions.TOGGLE_RECORD_MODE:
+      return _extends({}, state, {
+        isRecordModeActive: !state.isRecordModeActive
       });
     default:
       return state;
@@ -34859,6 +34872,10 @@ var _button = __webpack_require__(448);
 
 var _button2 = _interopRequireDefault(_button);
 
+var _recordswitch = __webpack_require__(452);
+
+var _recordswitch2 = _interopRequireDefault(_recordswitch);
+
 var _actions = __webpack_require__(449);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -34889,17 +34906,28 @@ var Main = function (_React$Component) {
       var _this2 = this;
 
       return _react2.default.createElement(
-        'div',
-        { className: 'buttons-container' },
-        nine.map(function (item, index) {
-          return _react2.default.createElement(_button2.default, {
-            isPressed: _this2.props.pressedButtons[index],
-            onPressButton: _this2.props.onPressButton,
-            onReleaseButton: _this2.props.onReleaseButton,
-            data: _this2.props.audioData[index],
-            index: index,
-            key: 'button-' + index
-          });
+        _react2.default.Fragment,
+        null,
+        _react2.default.createElement(
+          'div',
+          { className: 'buttons-container' },
+          nine.map(function (item, index) {
+            return _react2.default.createElement(_button2.default, {
+              isPressed: _this2.props.pressedButtons[index],
+              onPress: _this2.props.onPressButton,
+              onRelease: _this2.props.onReleaseButton,
+              data: _this2.props.audioData[index],
+              index: index,
+              key: 'button-' + index,
+              isRecordModeActive: _this2.props.isRecordModeActive
+            });
+          })
+        ),
+        _react2.default.createElement(_recordswitch2.default, {
+          isPressed: this.props.isRecordModeActive,
+          onPress: this.props.enterRecordMode,
+          onRelease: this.props.exitRecordMode,
+          onClick: this.props.toggleRecordMode
         })
       );
     }
@@ -34911,14 +34939,18 @@ var Main = function (_React$Component) {
 var mapStateToProps = function mapStateToProps(state) {
   return {
     audioData: state.MainReducer.audioData,
-    pressedButtons: state.MainReducer.pressedButtons
+    pressedButtons: state.MainReducer.pressedButtons,
+    isRecordModeActive: state.MainReducer.isRecordModeActive
   };
 };
 
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return (0, _redux.bindActionCreators)({
     onPressButton: _actions.onPressButton,
-    onReleaseButton: _actions.onReleaseButton
+    onReleaseButton: _actions.onReleaseButton,
+    enterRecordMode: _actions.enterRecordMode,
+    exitRecordMode: _actions.exitRecordMode,
+    toggleRecordMode: _actions.toggleRecordMode
   }, dispatch);
 };
 
@@ -34941,6 +34973,10 @@ var _react = __webpack_require__(10);
 
 var _react2 = _interopRequireDefault(_react);
 
+var _classnames = __webpack_require__(453);
+
+var _classnames2 = _interopRequireDefault(_classnames);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -34957,8 +34993,8 @@ var Button = function (_React$Component) {
 
     var _this = _possibleConstructorReturn(this, (Button.__proto__ || Object.getPrototypeOf(Button)).call(this, props));
 
-    _this.onPressButton = _this.props.onPressButton.bind(_this, _this.props.index);
-    _this.onReleaseButton = _this.props.onReleaseButton.bind(_this, _this.props.index);
+    _this.onPressButton = _this.props.onPress.bind(_this, _this.props.index);
+    _this.onReleaseButton = _this.props.onRelease.bind(_this, _this.props.index);
     return _this;
   }
 
@@ -34967,6 +35003,7 @@ var Button = function (_React$Component) {
     value: function render() {
       var _props = this.props,
           isPressed = _props.isPressed,
+          isRecordModeActive = _props.isRecordModeActive,
           data = _props.data,
           onPressButton = _props.onPressButton,
           onReleaseButton = _props.onReleaseButton,
@@ -34975,14 +35012,21 @@ var Button = function (_React$Component) {
       return _react2.default.createElement(
         'div',
         {
-          className: 'sampler-button',
           onMouseDown: this.onPressButton,
           onTouchStart: this.onPressButton,
           onMouseUp: this.onReleaseButton // todo: move to body to catch exterior clicks
           , onTouchEnd: this.onReleaseButton,
-          style: isPressed ? { border: '1px solid black' } : null
+          className: (0, _classnames2.default)({
+            'sampler-button': true,
+            'is-touched': isPressed,
+            'is-record-mode': isRecordModeActive
+          })
         },
-        'Click Me??'
+        _react2.default.createElement(
+          'span',
+          null,
+          'Click Me??'
+        )
       );
     }
   }]);
@@ -35006,6 +35050,10 @@ Object.defineProperty(exports, "__esModule", {
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 var ON_PRESS_BUTTON = exports.ON_PRESS_BUTTON = 'ON_PRESS_BUTTON';
+var ON_RELEASE_BUTTON = exports.ON_RELEASE_BUTTON = 'ON_RELEASE_BUTTON';
+var ENTER_RECORD_MODE = exports.ENTER_RECORD_MODE = 'ENTER_RECORD_MODE';
+var EXIT_RECORD_MODE = exports.EXIT_RECORD_MODE = 'ENTER_RECORD_MODE';
+var TOGGLE_RECORD_MODE = exports.TOGGLE_RECORD_MODE = 'TOGGLE_RECORD_MODE';
 
 var onPressButton = exports.onPressButton = function onPressButton(index) {
   return function () {
@@ -35014,13 +35062,12 @@ var onPressButton = exports.onPressButton = function onPressButton(index) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              console.log('press');
               dispatch({
                 type: ON_PRESS_BUTTON,
                 index: index
               });
 
-            case 2:
+            case 1:
             case 'end':
               return _context.stop();
           }
@@ -35033,8 +35080,6 @@ var onPressButton = exports.onPressButton = function onPressButton(index) {
     };
   }();
 };
-
-var ON_RELEASE_BUTTON = exports.ON_RELEASE_BUTTON = 'ON_RELEASE_BUTTON';
 
 var onReleaseButton = exports.onReleaseButton = function onReleaseButton(index) {
   return function () {
@@ -35061,6 +35106,204 @@ var onReleaseButton = exports.onReleaseButton = function onReleaseButton(index) 
     };
   }();
 };
+
+var enterRecordMode = exports.enterRecordMode = function enterRecordMode() {
+  return function () {
+    var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(dispatch, getState) {
+      return regeneratorRuntime.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              dispatch({
+                type: ENTER_RECORD_MODE
+              });
+
+            case 1:
+            case 'end':
+              return _context3.stop();
+          }
+        }
+      }, _callee3, undefined);
+    }));
+
+    return function (_x5, _x6) {
+      return _ref3.apply(this, arguments);
+    };
+  }();
+};
+
+var exitRecordMode = exports.exitRecordMode = function exitRecordMode() {
+  return function () {
+    var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(dispatch, getState) {
+      return regeneratorRuntime.wrap(function _callee4$(_context4) {
+        while (1) {
+          switch (_context4.prev = _context4.next) {
+            case 0:
+              dispatch({
+                type: EXIT_RECORD_MODE
+              });
+
+            case 1:
+            case 'end':
+              return _context4.stop();
+          }
+        }
+      }, _callee4, undefined);
+    }));
+
+    return function (_x7, _x8) {
+      return _ref4.apply(this, arguments);
+    };
+  }();
+};
+
+var toggleRecordMode = exports.toggleRecordMode = function toggleRecordMode() {
+  return function () {
+    var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(dispatch, getState) {
+      return regeneratorRuntime.wrap(function _callee5$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              dispatch({
+                type: TOGGLE_RECORD_MODE
+              });
+
+            case 1:
+            case 'end':
+              return _context5.stop();
+          }
+        }
+      }, _callee5, undefined);
+    }));
+
+    return function (_x9, _x10) {
+      return _ref5.apply(this, arguments);
+    };
+  }();
+};
+
+/***/ }),
+/* 450 */,
+/* 451 */,
+/* 452 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(10);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var RecordSwitch = function (_React$Component) {
+  _inherits(RecordSwitch, _React$Component);
+
+  function RecordSwitch(props) {
+    _classCallCheck(this, RecordSwitch);
+
+    return _possibleConstructorReturn(this, (RecordSwitch.__proto__ || Object.getPrototypeOf(RecordSwitch)).call(this, props));
+  }
+
+  _createClass(RecordSwitch, [{
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          isPressed = _props.isPressed,
+          onPress = _props.onPress,
+          onRelease = _props.onRelease,
+          onClick = _props.onClick;
+
+      return _react2.default.createElement(
+        'div',
+        {
+          className: 'sampler-button',
+          onTouchStart: onPress,
+          onTouchEnd: onRelease,
+          onClick: onClick,
+          style: isPressed ? { border: '1px solid black' } : null
+        },
+        _react2.default.createElement(
+          'span',
+          null,
+          'Record'
+        )
+      );
+    }
+  }]);
+
+  return RecordSwitch;
+}(_react2.default.Component);
+
+exports.default = RecordSwitch;
+
+/***/ }),
+/* 453 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+  Copyright (c) 2016 Jed Watson.
+  Licensed under the MIT License (MIT), see
+  http://jedwatson.github.io/classnames
+*/
+/* global define */
+
+(function () {
+	'use strict';
+
+	var hasOwn = {}.hasOwnProperty;
+
+	function classNames () {
+		var classes = [];
+
+		for (var i = 0; i < arguments.length; i++) {
+			var arg = arguments[i];
+			if (!arg) continue;
+
+			var argType = typeof arg;
+
+			if (argType === 'string' || argType === 'number') {
+				classes.push(arg);
+			} else if (Array.isArray(arg)) {
+				classes.push(classNames.apply(null, arg));
+			} else if (argType === 'object') {
+				for (var key in arg) {
+					if (hasOwn.call(arg, key) && arg[key]) {
+						classes.push(key);
+					}
+				}
+			}
+		}
+
+		return classes.join(' ');
+	}
+
+	if (typeof module !== 'undefined' && module.exports) {
+		module.exports = classNames;
+	} else if (true) {
+		// register as 'classnames', consistent with npm package name
+		!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = (function () {
+			return classNames;
+		}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	} else {
+		window.classNames = classNames;
+	}
+}());
+
 
 /***/ })
 /******/ ]);
