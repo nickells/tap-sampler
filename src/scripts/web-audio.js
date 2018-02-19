@@ -1,5 +1,4 @@
 const mediaConstraints = { audio: true }
-let source
 let processor
 
 const buffers = {
@@ -7,12 +6,10 @@ const buffers = {
 }
 
 const context = new AudioContext()
-let gainNode
 
 export const getMedia = () => navigator.mediaDevices.getUserMedia(mediaConstraints)
 .then(stream => {
-  source = context.createMediaStreamSource(stream)
-  console.log(context.sampleRate)
+  let source = context.createMediaStreamSource(stream)
   processor = context.createScriptProcessor(undefined, 1, 1);
   source.connect(processor)
   processor.connect(context.destination)
@@ -22,32 +19,27 @@ export const getMedia = () => navigator.mediaDevices.getUserMedia(mediaConstrain
 })
 
 let onAudioProcess
-let newBuffer
-let newData = []
+let incomingData = []
 export const recordStart = (i) => {
   const seconds = 3
   const channels = 1
-  console.log(context)
-  newBuffer = context.createBuffer(channels, context.sampleRate * seconds, context.sampleRate)
-  let count = 0
+  incomingData = []
+  buffers[i] = context.createBuffer(channels, context.sampleRate * seconds, context.sampleRate)
   onAudioProcess = (e) => {
     const array = Array.from(e.inputBuffer.getChannelData(0))
-    newData = newData.concat(array)
-    // Do something with the data, i.e Convert this to WAV
-    // count++
+    incomingData = incomingData.concat(array)
   }
   processor.addEventListener('audioprocess', onAudioProcess)
 }
 
 export const recordStop = (i) => {
-  newBuffer.copyToChannel(new Float32Array(newData), 0)
+  if (buffers[i]) buffers[i].copyToChannel(new Float32Array(incomingData), 0)
   processor.removeEventListener('audioprocess', onAudioProcess)
 }
 
 export const playAudio = (i) => {
   const bufferToPlay = context.createBufferSource()
-  console.log(newBuffer)
-  bufferToPlay.buffer = newBuffer
+  bufferToPlay.buffer = buffers[i]
   bufferToPlay.connect(context.destination)
   bufferToPlay.start()
 }

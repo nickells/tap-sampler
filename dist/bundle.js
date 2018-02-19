@@ -8109,7 +8109,7 @@ var onReleaseButtonPlayMode = exports.onReleaseButtonPlayMode = function onRelea
 };
 
 var onReleaseButtonRecordMode = exports.onReleaseButtonRecordMode = function onReleaseButtonRecordMode(index) {
-  (0, _webAudio.recordStop)();
+  (0, _webAudio.recordStop)(index);
   return {
     type: ON_RELEASE_BUTTON_RECORD_MODE,
     index: index
@@ -8122,8 +8122,8 @@ var enterRecordMode = exports.enterRecordMode = function enterRecordMode() {
   };
 };
 
-var exitRecordMode = exports.exitRecordMode = function exitRecordMode() {
-  (0, _webAudio.recordStop)();
+var exitRecordMode = exports.exitRecordMode = function exitRecordMode(index) {
+  (0, _webAudio.recordStop)(index);
   return {
     type: EXIT_RECORD_MODE
   };
@@ -34985,18 +34985,15 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var mediaConstraints = { audio: true };
-var source = void 0;
 var processor = void 0;
 
 var buffers = {};
 
 var context = new AudioContext();
-var gainNode = void 0;
 
 var getMedia = exports.getMedia = function getMedia() {
   return navigator.mediaDevices.getUserMedia(mediaConstraints).then(function (stream) {
-    source = context.createMediaStreamSource(stream);
-    console.log(context.sampleRate);
+    var source = context.createMediaStreamSource(stream);
     processor = context.createScriptProcessor(undefined, 1, 1);
     source.connect(processor);
     processor.connect(context.destination);
@@ -35006,32 +35003,27 @@ var getMedia = exports.getMedia = function getMedia() {
 };
 
 var onAudioProcess = void 0;
-var newBuffer = void 0;
-var newData = [];
+var incomingData = [];
 var recordStart = exports.recordStart = function recordStart(i) {
   var seconds = 3;
   var channels = 1;
-  console.log(context);
-  newBuffer = context.createBuffer(channels, context.sampleRate * seconds, context.sampleRate);
-  var count = 0;
+  incomingData = [];
+  buffers[i] = context.createBuffer(channels, context.sampleRate * seconds, context.sampleRate);
   onAudioProcess = function onAudioProcess(e) {
     var array = Array.from(e.inputBuffer.getChannelData(0));
-    newData = newData.concat(array);
-    // Do something with the data, i.e Convert this to WAV
-    // count++
+    incomingData = incomingData.concat(array);
   };
   processor.addEventListener('audioprocess', onAudioProcess);
 };
 
 var recordStop = exports.recordStop = function recordStop(i) {
-  newBuffer.copyToChannel(new Float32Array(newData), 0);
+  if (buffers[i]) buffers[i].copyToChannel(new Float32Array(incomingData), 0);
   processor.removeEventListener('audioprocess', onAudioProcess);
 };
 
 var playAudio = exports.playAudio = function playAudio(i) {
   var bufferToPlay = context.createBufferSource();
-  console.log(newBuffer);
-  bufferToPlay.buffer = newBuffer;
+  bufferToPlay.buffer = buffers[i];
   bufferToPlay.connect(context.destination);
   bufferToPlay.start();
 };

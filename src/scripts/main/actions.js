@@ -54,7 +54,7 @@ export const onReleaseButtonPlayMode = (index) => {
 }
 
 export const onReleaseButtonRecordMode = (index) => {
-  recordStop()
+  recordStop(index)
   return {
     type: ON_RELEASE_BUTTON_RECORD_MODE,
     index,
@@ -68,8 +68,8 @@ export const enterRecordMode = () => {
   }
 }
 
-export const exitRecordMode = () => {
-  recordStop()
+export const exitRecordMode = (index) => {
+  recordStop(index)
   return {
     type: EXIT_RECORD_MODE,
   }
