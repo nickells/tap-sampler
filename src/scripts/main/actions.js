@@ -4,7 +4,7 @@ import {
   recordStop,
   playAudio,
   stopAudio,
-} from '../audio'
+} from '../web-audio'
 
 export const ON_PRESS_BUTTON_RECORD_MODE = 'ON_PRESS_BUTTON_RECORD_MODE'
 export const ON_RELEASE_BUTTON_RECORD_MODE = 'ON_RELEASE_BUTTON_RECORD_MODE'
