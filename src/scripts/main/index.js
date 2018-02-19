@@ -8,14 +8,15 @@ import {
   onReleaseButton,
   enterRecordMode,
   exitRecordMode,
-  toggleRecordMode
+  toggleRecordMode,
+  requestMedia
 } from './actions'
 
 const nine = new Array(9).fill(true)
 
 class Main extends React.Component {
   componentDidMount(){
-
+    this.props.requestMedia()
   }
 
   render(){
@@ -28,7 +29,6 @@ class Main extends React.Component {
                 isPressed={this.props.pressedButtons[index]}
                 onPress={this.props.onPressButton}
                 onRelease={this.props.onReleaseButton}
-                data={this.props.audioData[index]}
                 index={index}
                 key={`button-${index}`}
                 isRecordModeActive={this.props.isRecordModeActive}
@@ -58,7 +58,8 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   onReleaseButton,
   enterRecordMode,
   exitRecordMode,
-  toggleRecordMode
+  toggleRecordMode,
+  requestMedia
 }, dispatch)
 
 export default connect(

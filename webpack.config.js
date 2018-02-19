@@ -30,7 +30,7 @@ module.exports = [{
     path: path.join(__dirname, 'dist'),
     filename: 'styles.css',
   },
-  devtool: 'eval',
+  devtool: 'source-map-eval',
   module: {
     rules: [
       {

@@ -1,34 +1,59 @@
 /*
-  records one stream at a time and retrieves it
+  records one stream at a time and stores it
 */
 
 const mediaConstraints = { audio: true }
 let recorder = undefined
 let chunks = []
+let streamInstance
+const DEBUG = 1
+
+const audioElements = {
+
+}
+
+for (let i = 0; i < 9; i++) {
+  audioElements[i] = document.createElement('audio')
+  document.body.appendChild(audioElements[i])
+}
 
 export const getMedia = () => navigator.mediaDevices.getUserMedia(mediaConstraints)
+.then(stream => {
+  streamInstance = stream
+  return stream
+})
 .catch((err) => {
   console.log(`The following gUM error occured: ${err}`);
 })
 
-export const record = (stream) => {
-  if (!recorder) recorder = new MediaRecorder(stream)
-  recorder.ondataavailable = e => chunks.push(e.data)
+export const recordStart = (i) => {
+  if (DEBUG) console.log('record start')
+  if (!recorder) recorder = new MediaRecorder(streamInstance)
+  console.log(recorder.stream)
+  recorder.start()
+  recorder.ondataavailable = e => {
+    chunks.push(e.data)
+    const audioBlob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' })
+    chunks = []
+    audioElements[i].setAttribute('src', window.URL.createObjectURL(audioBlob))
+  }
 }
 
-export const stop = () => {
+export const recordStop = (i) => {
+  if (DEBUG) console.log('record stop')
   if (!recorder) console.error('Tried to stop an undefined recorder')
   recorder.stop()
 }
 
-const resetChunks = () => {
-  chunks = []
+export const playAudio = (i) => {
+  if (DEBUG) console.log('play', i)
+  if (audioElements[i].src) audioElements[i].play()
 }
 
-export const getChunkData = () => {
-  const $audio = document.createElement('audio')
-  const audioBlob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' })
-  $audio.src = window.URL.createObjectURL(audioBlob)
-  resetChunks()
-  return $audio
+export const stopAudio = (i) => {
+  if (DEBUG) console.log('pause', i)
+  if (audioElements[i].src) {
+    audioElements[i].currentTime = 0
+    audioElements[i].pause()
+  }
 }

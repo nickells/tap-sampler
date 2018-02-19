@@ -1,4 +1,5 @@
 import React from 'react'
+const hasTouch = 'onTouchStart' in window
 
 export default class RecordSwitch extends React.Component {
   constructor(props){
@@ -9,9 +10,9 @@ export default class RecordSwitch extends React.Component {
     return (
       <div
         className="sampler-button"
-        onTouchStart={onPress}
-        onTouchEnd={onRelease}
-        onClick={onClick}
+        onTouchStart={hasTouch ? onPress : null}
+        onTouchEnd={hasTouch ? onRelease : null}
+        onClick={hasTouch ? null : onClick }
         style={isPressed ? { border: '1px solid black' } : null}
       >
         <span>Record</span>

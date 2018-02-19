@@ -34812,9 +34812,9 @@ var _actions = __webpack_require__(449);
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var initialState = {
-  audioData: [],
   pressedButtons: {},
-  isRecordModeActive: false
+  isRecordModeActive: false,
+  hasMedia: false
 };
 
 exports.default = function () {
@@ -34822,6 +34822,10 @@ exports.default = function () {
   var action = arguments[1];
 
   switch (action.type) {
+    case _actions.REQUEST_MEDIA:
+      return _extends({}, state, {
+        hasMedia: action.hasMedia
+      });
     case _actions.ON_PRESS_BUTTON:
       return _extends({}, state, {
         pressedButtons: _extends({}, state.pressedButtons, _defineProperty({}, action.index, true))
@@ -34899,7 +34903,9 @@ var Main = function (_React$Component) {
 
   _createClass(Main, [{
     key: 'componentDidMount',
-    value: function componentDidMount() {}
+    value: function componentDidMount() {
+      this.props.requestMedia();
+    }
   }, {
     key: 'render',
     value: function render() {
@@ -34916,7 +34922,6 @@ var Main = function (_React$Component) {
               isPressed: _this2.props.pressedButtons[index],
               onPress: _this2.props.onPressButton,
               onRelease: _this2.props.onReleaseButton,
-              data: _this2.props.audioData[index],
               index: index,
               key: 'button-' + index,
               isRecordModeActive: _this2.props.isRecordModeActive
@@ -34950,7 +34955,8 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
     onReleaseButton: _actions.onReleaseButton,
     enterRecordMode: _actions.enterRecordMode,
     exitRecordMode: _actions.exitRecordMode,
-    toggleRecordMode: _actions.toggleRecordMode
+    toggleRecordMode: _actions.toggleRecordMode,
+    requestMedia: _actions.requestMedia
   }, dispatch);
 };
 
@@ -35046,6 +35052,9 @@ exports.default = Button;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.toggleRecordMode = exports.exitRecordMode = exports.enterRecordMode = exports.onReleaseButton = exports.onPressButton = exports.requestMedia = exports.REQUEST_MEDIA = exports.TOGGLE_RECORD_MODE = exports.EXIT_RECORD_MODE = exports.ENTER_RECORD_MODE = exports.ON_RELEASE_BUTTON = exports.ON_PRESS_BUTTON = undefined;
+
+var _audio = __webpack_require__(454);
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
@@ -35054,25 +35063,44 @@ var ON_RELEASE_BUTTON = exports.ON_RELEASE_BUTTON = 'ON_RELEASE_BUTTON';
 var ENTER_RECORD_MODE = exports.ENTER_RECORD_MODE = 'ENTER_RECORD_MODE';
 var EXIT_RECORD_MODE = exports.EXIT_RECORD_MODE = 'ENTER_RECORD_MODE';
 var TOGGLE_RECORD_MODE = exports.TOGGLE_RECORD_MODE = 'TOGGLE_RECORD_MODE';
+var REQUEST_MEDIA = exports.REQUEST_MEDIA = 'REQUEST_MEDIA';
 
-var onPressButton = exports.onPressButton = function onPressButton(index) {
+var requestMedia = exports.requestMedia = function requestMedia() {
   return function () {
     var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(dispatch, getState) {
+      var media;
       return regeneratorRuntime.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
+              media = false;
+              _context.prev = 1;
+              _context.next = 4;
+              return (0, _audio.getMedia)();
+
+            case 4:
+              media = _context.sent;
+              _context.next = 10;
+              break;
+
+            case 7:
+              _context.prev = 7;
+              _context.t0 = _context['catch'](1);
+
+              console.log('error getting media');
+
+            case 10:
               dispatch({
-                type: ON_PRESS_BUTTON,
-                index: index
+                type: REQUEST_MEDIA,
+                hasMedia: media
               });
 
-            case 1:
+            case 11:
             case 'end':
               return _context.stop();
           }
         }
-      }, _callee, undefined);
+      }, _callee, undefined, [[1, 7]]);
     }));
 
     return function (_x, _x2) {
@@ -35081,19 +35109,21 @@ var onPressButton = exports.onPressButton = function onPressButton(index) {
   }();
 };
 
-var onReleaseButton = exports.onReleaseButton = function onReleaseButton(index) {
+var onPressButton = exports.onPressButton = function onPressButton(index) {
   return function () {
     var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(dispatch, getState) {
       return regeneratorRuntime.wrap(function _callee2$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
+              console.log(getState());
+              if (getState().MainReducer.isRecordModeActive) (0, _audio.recordStart)(index);else (0, _audio.playAudio)(index);
               dispatch({
-                type: ON_RELEASE_BUTTON,
+                type: ON_PRESS_BUTTON,
                 index: index
               });
 
-            case 1:
+            case 3:
             case 'end':
               return _context2.stop();
           }
@@ -35107,18 +35137,20 @@ var onReleaseButton = exports.onReleaseButton = function onReleaseButton(index) 
   }();
 };
 
-var enterRecordMode = exports.enterRecordMode = function enterRecordMode() {
+var onReleaseButton = exports.onReleaseButton = function onReleaseButton(index) {
   return function () {
     var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(dispatch, getState) {
       return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
           switch (_context3.prev = _context3.next) {
             case 0:
+              if (getState().MainReducer.isRecordModeActive) (0, _audio.recordStop)(index);else (0, _audio.stopAudio)(index);
               dispatch({
-                type: ENTER_RECORD_MODE
+                type: ON_RELEASE_BUTTON,
+                index: index
               });
 
-            case 1:
+            case 2:
             case 'end':
               return _context3.stop();
           }
@@ -35132,7 +35164,7 @@ var enterRecordMode = exports.enterRecordMode = function enterRecordMode() {
   }();
 };
 
-var exitRecordMode = exports.exitRecordMode = function exitRecordMode() {
+var enterRecordMode = exports.enterRecordMode = function enterRecordMode() {
   return function () {
     var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(dispatch, getState) {
       return regeneratorRuntime.wrap(function _callee4$(_context4) {
@@ -35140,7 +35172,7 @@ var exitRecordMode = exports.exitRecordMode = function exitRecordMode() {
           switch (_context4.prev = _context4.next) {
             case 0:
               dispatch({
-                type: EXIT_RECORD_MODE
+                type: ENTER_RECORD_MODE
               });
 
             case 1:
@@ -35157,7 +35189,7 @@ var exitRecordMode = exports.exitRecordMode = function exitRecordMode() {
   }();
 };
 
-var toggleRecordMode = exports.toggleRecordMode = function toggleRecordMode() {
+var exitRecordMode = exports.exitRecordMode = function exitRecordMode() {
   return function () {
     var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(dispatch, getState) {
       return regeneratorRuntime.wrap(function _callee5$(_context5) {
@@ -35165,7 +35197,7 @@ var toggleRecordMode = exports.toggleRecordMode = function toggleRecordMode() {
           switch (_context5.prev = _context5.next) {
             case 0:
               dispatch({
-                type: TOGGLE_RECORD_MODE
+                type: EXIT_RECORD_MODE
               });
 
             case 1:
@@ -35178,6 +35210,31 @@ var toggleRecordMode = exports.toggleRecordMode = function toggleRecordMode() {
 
     return function (_x9, _x10) {
       return _ref5.apply(this, arguments);
+    };
+  }();
+};
+
+var toggleRecordMode = exports.toggleRecordMode = function toggleRecordMode() {
+  return function () {
+    var _ref6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(dispatch, getState) {
+      return regeneratorRuntime.wrap(function _callee6$(_context6) {
+        while (1) {
+          switch (_context6.prev = _context6.next) {
+            case 0:
+              dispatch({
+                type: TOGGLE_RECORD_MODE
+              });
+
+            case 1:
+            case 'end':
+              return _context6.stop();
+          }
+        }
+      }, _callee6, undefined);
+    }));
+
+    return function (_x11, _x12) {
+      return _ref6.apply(this, arguments);
     };
   }();
 };
@@ -35209,6 +35266,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var hasTouch = 'onTouchStart' in window;
+
 var RecordSwitch = function (_React$Component) {
   _inherits(RecordSwitch, _React$Component);
 
@@ -35231,9 +35290,9 @@ var RecordSwitch = function (_React$Component) {
         'div',
         {
           className: 'sampler-button',
-          onTouchStart: onPress,
-          onTouchEnd: onRelease,
-          onClick: onClick,
+          onTouchStart: hasTouch ? onPress : null,
+          onTouchEnd: hasTouch ? onRelease : null,
+          onClick: hasTouch ? null : onClick,
           style: isPressed ? { border: '1px solid black' } : null
         },
         _react2.default.createElement(
@@ -35304,6 +35363,74 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 	}
 }());
 
+
+/***/ }),
+/* 454 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+/*
+  records one stream at a time and stores it
+*/
+
+var mediaConstraints = { audio: true };
+var recorder = undefined;
+var chunks = [];
+var streamInstance = void 0;
+var DEBUG = 1;
+
+var audioElements = {};
+
+for (var i = 0; i < 9; i++) {
+  audioElements[i] = document.createElement('audio');
+  document.body.appendChild(audioElements[i]);
+}
+
+var getMedia = exports.getMedia = function getMedia() {
+  return navigator.mediaDevices.getUserMedia(mediaConstraints).then(function (stream) {
+    streamInstance = stream;
+    return stream;
+  }).catch(function (err) {
+    console.log('The following gUM error occured: ' + err);
+  });
+};
+
+var recordStart = exports.recordStart = function recordStart(i) {
+  if (DEBUG) console.log('record start');
+  if (!recorder) recorder = new MediaRecorder(streamInstance);
+  console.log(recorder.stream);
+  recorder.start();
+  recorder.ondataavailable = function (e) {
+    chunks.push(e.data);
+    var audioBlob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
+    chunks = [];
+    audioElements[i].setAttribute('src', window.URL.createObjectURL(audioBlob));
+  };
+};
+
+var recordStop = exports.recordStop = function recordStop(i) {
+  if (DEBUG) console.log('record stop');
+  if (!recorder) console.error('Tried to stop an undefined recorder');
+  recorder.stop();
+};
+
+var playAudio = exports.playAudio = function playAudio(i) {
+  if (DEBUG) console.log('play', i);
+  if (audioElements[i].src) audioElements[i].play();
+};
+
+var stopAudio = exports.stopAudio = function stopAudio(i) {
+  if (DEBUG) console.log('pause', i);
+  if (audioElements[i].src) {
+    audioElements[i].currentTime = 0;
+    audioElements[i].pause();
+  }
+};
 
 /***/ })
 /******/ ]);
