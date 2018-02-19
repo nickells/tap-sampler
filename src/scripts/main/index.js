@@ -40,13 +40,13 @@ class Main extends React.Component {
               />
             ))
           }
-        </div>
         <RecordSwitch
           isPressed={this.props.isRecordModeActive}
           onPress={this.props.enterRecordMode}
           onRelease={this.props.exitRecordMode}
           onClick={this.props.toggleRecordMode}
         />
+        </div>
       </React.Fragment>
     )
   }

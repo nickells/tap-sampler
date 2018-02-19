@@ -34978,12 +34978,19 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var mediaConstraints = { audio: true };
-var processor = void 0;
 
-var buffers = {};
+var audio = {
+  /*
+    0: {
+      data: float32array
+      node: web audio context buffersource
+    }
+   */
+};
 
 var context = new AudioContext();
 
+var processor = void 0;
 var getMedia = exports.getMedia = function getMedia() {
   return navigator.mediaDevices.getUserMedia(mediaConstraints).then(function (stream) {
     var source = context.createMediaStreamSource(stream);
@@ -35001,7 +35008,8 @@ var recordStart = exports.recordStart = function recordStart(i) {
   var seconds = 3;
   var channels = 1;
   incomingData = [];
-  buffers[i] = context.createBuffer(channels, context.sampleRate * seconds, context.sampleRate);
+  audio[i] = {};
+  audio[i].data = context.createBuffer(channels, context.sampleRate * seconds, context.sampleRate);
   onAudioProcess = function onAudioProcess(e) {
     var array = Array.from(e.inputBuffer.getChannelData(0));
     incomingData = incomingData.concat(array);
@@ -35010,18 +35018,23 @@ var recordStart = exports.recordStart = function recordStart(i) {
 };
 
 var recordStop = exports.recordStop = function recordStop(i) {
-  if (buffers[i]) buffers[i].copyToChannel(new Float32Array(incomingData), 0);
+  if (audio[i] && audio[i].data) audio[i].data.copyToChannel(new Float32Array(incomingData), 0);
   processor.removeEventListener('audioprocess', onAudioProcess);
 };
 
 var playAudio = exports.playAudio = function playAudio(i) {
-  var bufferToPlay = context.createBufferSource();
-  bufferToPlay.buffer = buffers[i];
-  bufferToPlay.connect(context.destination);
-  bufferToPlay.start();
+  if (!audio[i]) return;
+  audio[i].node = context.createBufferSource();
+  audio[i].node.buffer = audio[i].data;
+  console.log(audio[i].data.getChannelData(0));
+  audio[i].node.connect(context.destination);
+  audio[i].node.start();
 };
 
-var stopAudio = exports.stopAudio = function stopAudio(i) {};
+var stopAudio = exports.stopAudio = function stopAudio(i) {
+  if (!audio[i].node) return;
+  audio[i].node.stop();
+};
 
 /***/ }),
 /* 449 */
@@ -35103,14 +35116,14 @@ var Main = function (_React$Component) {
               key: 'button-' + index,
               isRecordModeActive: _this2.props.isRecordModeActive
             });
+          }),
+          _react2.default.createElement(_recordswitch2.default, {
+            isPressed: this.props.isRecordModeActive,
+            onPress: this.props.enterRecordMode,
+            onRelease: this.props.exitRecordMode,
+            onClick: this.props.toggleRecordMode
           })
-        ),
-        _react2.default.createElement(_recordswitch2.default, {
-          isPressed: this.props.isRecordModeActive,
-          onPress: this.props.enterRecordMode,
-          onRelease: this.props.exitRecordMode,
-          onClick: this.props.toggleRecordMode
-        })
+        )
       );
     }
   }]);
@@ -35188,8 +35201,8 @@ var Button = function (_React$Component) {
           onRelease = _props.onRelease,
           index = _props.index;
 
-      var onPressButton = this.props.onPress.bind(this, this.props.index);
-      var onReleaseButton = this.props.onRelease.bind(this, this.props.index);
+      var onPressButton = onPress.bind(this, index);
+      var onReleaseButton = onRelease.bind(this, index);
       return _react2.default.createElement(
         'div',
         {

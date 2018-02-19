@@ -3,9 +3,9 @@ import classnames from 'classnames'
 
 export default class Button extends React.Component {
   render() {
-    const {isPressed, isRecordModeActive, data, onPress, onRelease, index} = this.props
-    const onPressButton = this.props.onPress.bind(this, this.props.index)
-    const onReleaseButton = this.props.onRelease.bind(this, this.props.index)
+    const { isPressed, isRecordModeActive, data, onPress, onRelease, index} = this.props
+    const onPressButton = onPress.bind(this, index)
+    const onReleaseButton = onRelease.bind(this, index)
     return (
       <div
         onMouseDown={onPressButton}
