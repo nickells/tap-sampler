@@ -3,17 +3,18 @@ import {
   recordStart,
   recordStop,
   playAudio,
-  stopAudio
+  stopAudio,
+  recordStopAll,
 } from '../audio'
 
 export const ON_PRESS_BUTTON = 'ON_PRESS_BUTTON'
 export const ON_RELEASE_BUTTON = 'ON_RELEASE_BUTTON'
 export const ENTER_RECORD_MODE = 'ENTER_RECORD_MODE'
-export const EXIT_RECORD_MODE = 'ENTER_RECORD_MODE'
+export const EXIT_RECORD_MODE = 'EXIT_RECORD_MODE'
 export const TOGGLE_RECORD_MODE = 'TOGGLE_RECORD_MODE'
 export const REQUEST_MEDIA = 'REQUEST_MEDIA'
 
-export const requestMedia = () => async(dispatch, getState) => {
+export const requestMedia = () => async (dispatch, getState) => {
   let media = false
   try {
     media = await getMedia()
@@ -26,8 +27,7 @@ export const requestMedia = () => async(dispatch, getState) => {
   })
 }
 
-export const onPressButton = index => async (dispatch, getState) => {
-  console.log(getState())
+export const onPressButton = index => (dispatch, getState) => {
   if (getState().MainReducer.isRecordModeActive) recordStart(index)
   else playAudio(index)
   dispatch({
@@ -36,8 +36,8 @@ export const onPressButton = index => async (dispatch, getState) => {
   })
 }
 
-export const onReleaseButton = index => async (dispatch, getState) => {
-  if (getState().MainReducer.isRecordModeActive) recordStop(index)
+export const onReleaseButton = (index) => (dispatch, getState) => {
+  if (getState().MainReducer.isRecordModeActive) recordStop()
   else stopAudio(index)
   dispatch({
     type: ON_RELEASE_BUTTON,
@@ -45,20 +45,21 @@ export const onReleaseButton = index => async (dispatch, getState) => {
   })
 }
 
-export const enterRecordMode = () => async (dispatch, getState) => {
-  dispatch({
+export const enterRecordMode = () => {
+  return {
     type: ENTER_RECORD_MODE,
-  })
+  }
 }
 
-export const exitRecordMode = () => async (dispatch, getState) => {
-  dispatch({
+export const exitRecordMode = () => {
+  recordStop()
+  return {
     type: EXIT_RECORD_MODE,
-  })
+  }
 }
 
-export const toggleRecordMode = () => async (dispatch, getState) => {
-  dispatch({
+export const toggleRecordMode = () => {
+  return {
     type: TOGGLE_RECORD_MODE
-  })
+  }
 }

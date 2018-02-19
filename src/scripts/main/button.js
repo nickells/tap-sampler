@@ -23,7 +23,7 @@ export default class Button extends React.Component {
           })
         }
       >
-        <span>Click Me??</span>
+        { isRecordModeActive ? <span>Click to Record</span> : <span>Click to Play</span> }
       </div>
     )
   }

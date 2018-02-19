@@ -1,5 +1,6 @@
 import React from 'react'
-const hasTouch = 'onTouchStart' in window
+const hasTouch = 'ontouchstart' in window
+console.log(hasTouch)
 
 export default class RecordSwitch extends React.Component {
   constructor(props){

@@ -29,21 +29,26 @@ export const getMedia = () => navigator.mediaDevices.getUserMedia(mediaConstrain
 export const recordStart = (i) => {
   if (DEBUG) console.log('record start')
   if (!recorder) recorder = new MediaRecorder(streamInstance)
-  console.log(recorder.stream)
   recorder.start()
-  recorder.ondataavailable = e => {
+  recorder.ondataavailable = (e) => {
     chunks.push(e.data)
     const audioBlob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' })
     chunks = []
     audioElements[i].setAttribute('src', window.URL.createObjectURL(audioBlob))
+    audioElements[i].load()
   }
 }
 
 export const recordStop = (i) => {
   if (DEBUG) console.log('record stop')
-  if (!recorder) console.error('Tried to stop an undefined recorder')
+  if (!recorder) {
+    console.error('Tried to stop an undefined recorder')
+    return
+  }
+  if (recorder && recorder.state === 'inactive') return
   recorder.stop()
 }
+
 
 export const playAudio = (i) => {
   if (DEBUG) console.log('play', i)

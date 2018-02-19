@@ -35028,10 +35028,14 @@ var Button = function (_React$Component) {
             'is-record-mode': isRecordModeActive
           })
         },
-        _react2.default.createElement(
+        isRecordModeActive ? _react2.default.createElement(
           'span',
           null,
-          'Click Me??'
+          'Click to Record'
+        ) : _react2.default.createElement(
+          'span',
+          null,
+          'Click to Play'
         )
       );
     }
@@ -35061,7 +35065,7 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 var ON_PRESS_BUTTON = exports.ON_PRESS_BUTTON = 'ON_PRESS_BUTTON';
 var ON_RELEASE_BUTTON = exports.ON_RELEASE_BUTTON = 'ON_RELEASE_BUTTON';
 var ENTER_RECORD_MODE = exports.ENTER_RECORD_MODE = 'ENTER_RECORD_MODE';
-var EXIT_RECORD_MODE = exports.EXIT_RECORD_MODE = 'ENTER_RECORD_MODE';
+var EXIT_RECORD_MODE = exports.EXIT_RECORD_MODE = 'EXIT_RECORD_MODE';
 var TOGGLE_RECORD_MODE = exports.TOGGLE_RECORD_MODE = 'TOGGLE_RECORD_MODE';
 var REQUEST_MEDIA = exports.REQUEST_MEDIA = 'REQUEST_MEDIA';
 
@@ -35110,133 +35114,42 @@ var requestMedia = exports.requestMedia = function requestMedia() {
 };
 
 var onPressButton = exports.onPressButton = function onPressButton(index) {
-  return function () {
-    var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(dispatch, getState) {
-      return regeneratorRuntime.wrap(function _callee2$(_context2) {
-        while (1) {
-          switch (_context2.prev = _context2.next) {
-            case 0:
-              console.log(getState());
-              if (getState().MainReducer.isRecordModeActive) (0, _audio.recordStart)(index);else (0, _audio.playAudio)(index);
-              dispatch({
-                type: ON_PRESS_BUTTON,
-                index: index
-              });
-
-            case 3:
-            case 'end':
-              return _context2.stop();
-          }
-        }
-      }, _callee2, undefined);
-    }));
-
-    return function (_x3, _x4) {
-      return _ref2.apply(this, arguments);
-    };
-  }();
+  return function (dispatch, getState) {
+    if (getState().MainReducer.isRecordModeActive) (0, _audio.recordStart)(index);else (0, _audio.playAudio)(index);
+    dispatch({
+      type: ON_PRESS_BUTTON,
+      index: index
+    });
+  };
 };
 
 var onReleaseButton = exports.onReleaseButton = function onReleaseButton(index) {
-  return function () {
-    var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(dispatch, getState) {
-      return regeneratorRuntime.wrap(function _callee3$(_context3) {
-        while (1) {
-          switch (_context3.prev = _context3.next) {
-            case 0:
-              if (getState().MainReducer.isRecordModeActive) (0, _audio.recordStop)(index);else (0, _audio.stopAudio)(index);
-              dispatch({
-                type: ON_RELEASE_BUTTON,
-                index: index
-              });
-
-            case 2:
-            case 'end':
-              return _context3.stop();
-          }
-        }
-      }, _callee3, undefined);
-    }));
-
-    return function (_x5, _x6) {
-      return _ref3.apply(this, arguments);
-    };
-  }();
+  return function (dispatch, getState) {
+    if (getState().MainReducer.isRecordModeActive) (0, _audio.recordStop)();else (0, _audio.stopAudio)(index);
+    dispatch({
+      type: ON_RELEASE_BUTTON,
+      index: index
+    });
+  };
 };
 
 var enterRecordMode = exports.enterRecordMode = function enterRecordMode() {
-  return function () {
-    var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(dispatch, getState) {
-      return regeneratorRuntime.wrap(function _callee4$(_context4) {
-        while (1) {
-          switch (_context4.prev = _context4.next) {
-            case 0:
-              dispatch({
-                type: ENTER_RECORD_MODE
-              });
-
-            case 1:
-            case 'end':
-              return _context4.stop();
-          }
-        }
-      }, _callee4, undefined);
-    }));
-
-    return function (_x7, _x8) {
-      return _ref4.apply(this, arguments);
-    };
-  }();
+  return {
+    type: ENTER_RECORD_MODE
+  };
 };
 
 var exitRecordMode = exports.exitRecordMode = function exitRecordMode() {
-  return function () {
-    var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(dispatch, getState) {
-      return regeneratorRuntime.wrap(function _callee5$(_context5) {
-        while (1) {
-          switch (_context5.prev = _context5.next) {
-            case 0:
-              dispatch({
-                type: EXIT_RECORD_MODE
-              });
-
-            case 1:
-            case 'end':
-              return _context5.stop();
-          }
-        }
-      }, _callee5, undefined);
-    }));
-
-    return function (_x9, _x10) {
-      return _ref5.apply(this, arguments);
-    };
-  }();
+  (0, _audio.recordStop)();
+  return {
+    type: EXIT_RECORD_MODE
+  };
 };
 
 var toggleRecordMode = exports.toggleRecordMode = function toggleRecordMode() {
-  return function () {
-    var _ref6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(dispatch, getState) {
-      return regeneratorRuntime.wrap(function _callee6$(_context6) {
-        while (1) {
-          switch (_context6.prev = _context6.next) {
-            case 0:
-              dispatch({
-                type: TOGGLE_RECORD_MODE
-              });
-
-            case 1:
-            case 'end':
-              return _context6.stop();
-          }
-        }
-      }, _callee6, undefined);
-    }));
-
-    return function (_x11, _x12) {
-      return _ref6.apply(this, arguments);
-    };
-  }();
+  return {
+    type: TOGGLE_RECORD_MODE
+  };
 };
 
 /***/ }),
@@ -35266,7 +35179,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var hasTouch = 'onTouchStart' in window;
+var hasTouch = 'ontouchstart' in window;
+console.log(hasTouch);
 
 var RecordSwitch = function (_React$Component) {
   _inherits(RecordSwitch, _React$Component);
@@ -35403,19 +35317,23 @@ var getMedia = exports.getMedia = function getMedia() {
 var recordStart = exports.recordStart = function recordStart(i) {
   if (DEBUG) console.log('record start');
   if (!recorder) recorder = new MediaRecorder(streamInstance);
-  console.log(recorder.stream);
   recorder.start();
   recorder.ondataavailable = function (e) {
     chunks.push(e.data);
     var audioBlob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
     chunks = [];
     audioElements[i].setAttribute('src', window.URL.createObjectURL(audioBlob));
+    audioElements[i].load();
   };
 };
 
 var recordStop = exports.recordStop = function recordStop(i) {
   if (DEBUG) console.log('record stop');
-  if (!recorder) console.error('Tried to stop an undefined recorder');
+  if (!recorder) {
+    console.error('Tried to stop an undefined recorder');
+    return;
+  }
+  if (recorder && recorder.state === 'inactive') return;
   recorder.stop();
 };
 
