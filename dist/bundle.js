@@ -34826,11 +34826,13 @@ exports.default = function () {
       return _extends({}, state, {
         hasMedia: action.hasMedia
       });
-    case _actions.ON_PRESS_BUTTON:
+    case _actions.ON_PRESS_BUTTON_PLAY_MODE:
+    case _actions.ON_PRESS_BUTTON_RECORD_MODE:
       return _extends({}, state, {
         pressedButtons: _extends({}, state.pressedButtons, _defineProperty({}, action.index, true))
       });
-    case _actions.ON_RELEASE_BUTTON:
+    case _actions.ON_RELEASE_BUTTON_PLAY_MODE:
+    case _actions.ON_RELEASE_BUTTON_RECORD_MODE:
       return _extends({}, state, {
         pressedButtons: _extends({}, state.pressedButtons, _defineProperty({}, action.index, false))
       });
@@ -34911,6 +34913,15 @@ var Main = function (_React$Component) {
     value: function render() {
       var _this2 = this;
 
+      var _props = this.props,
+          onPressButtonPlayMode = _props.onPressButtonPlayMode,
+          onPressButtonRecordMode = _props.onPressButtonRecordMode,
+          onReleaseButtonPlayMode = _props.onReleaseButtonPlayMode,
+          onReleaseButtonRecordMode = _props.onReleaseButtonRecordMode,
+          isRecordModeActive = _props.isRecordModeActive;
+
+      var pressHandler = isRecordModeActive ? onPressButtonRecordMode : onPressButtonPlayMode;
+      var releaseHandler = isRecordModeActive ? onReleaseButtonRecordMode : onReleaseButtonPlayMode;
       return _react2.default.createElement(
         _react2.default.Fragment,
         null,
@@ -34920,8 +34931,8 @@ var Main = function (_React$Component) {
           nine.map(function (item, index) {
             return _react2.default.createElement(_button2.default, {
               isPressed: _this2.props.pressedButtons[index],
-              onPress: _this2.props.onPressButton,
-              onRelease: _this2.props.onReleaseButton,
+              onPress: pressHandler,
+              onRelease: releaseHandler,
               index: index,
               key: 'button-' + index,
               isRecordModeActive: _this2.props.isRecordModeActive
@@ -34951,8 +34962,10 @@ var mapStateToProps = function mapStateToProps(state) {
 
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return (0, _redux.bindActionCreators)({
-    onPressButton: _actions.onPressButton,
-    onReleaseButton: _actions.onReleaseButton,
+    onPressButtonRecordMode: _actions.onPressButtonRecordMode,
+    onPressButtonPlayMode: _actions.onPressButtonPlayMode,
+    onReleaseButtonRecordMode: _actions.onReleaseButtonRecordMode,
+    onReleaseButtonPlayMode: _actions.onReleaseButtonPlayMode,
     enterRecordMode: _actions.enterRecordMode,
     exitRecordMode: _actions.exitRecordMode,
     toggleRecordMode: _actions.toggleRecordMode,
@@ -34994,14 +35007,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Button = function (_React$Component) {
   _inherits(Button, _React$Component);
 
-  function Button(props) {
+  function Button() {
     _classCallCheck(this, Button);
 
-    var _this = _possibleConstructorReturn(this, (Button.__proto__ || Object.getPrototypeOf(Button)).call(this, props));
-
-    _this.onPressButton = _this.props.onPress.bind(_this, _this.props.index);
-    _this.onReleaseButton = _this.props.onRelease.bind(_this, _this.props.index);
-    return _this;
+    return _possibleConstructorReturn(this, (Button.__proto__ || Object.getPrototypeOf(Button)).apply(this, arguments));
   }
 
   _createClass(Button, [{
@@ -35011,17 +35020,19 @@ var Button = function (_React$Component) {
           isPressed = _props.isPressed,
           isRecordModeActive = _props.isRecordModeActive,
           data = _props.data,
-          onPressButton = _props.onPressButton,
-          onReleaseButton = _props.onReleaseButton,
+          onPress = _props.onPress,
+          onRelease = _props.onRelease,
           index = _props.index;
 
+      var onPressButton = this.props.onPress.bind(this, this.props.index);
+      var onReleaseButton = this.props.onRelease.bind(this, this.props.index);
       return _react2.default.createElement(
         'div',
         {
-          onMouseDown: this.onPressButton,
-          onTouchStart: this.onPressButton,
-          onMouseUp: this.onReleaseButton // todo: move to body to catch exterior clicks
-          , onTouchEnd: this.onReleaseButton,
+          onMouseDown: onPressButton,
+          onTouchStart: onPressButton,
+          onMouseUp: onReleaseButton // todo: move to body to catch exterior clicks
+          , onTouchEnd: onReleaseButton,
           className: (0, _classnames2.default)({
             'sampler-button': true,
             'is-touched': isPressed,
@@ -35056,14 +35067,17 @@ exports.default = Button;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.toggleRecordMode = exports.exitRecordMode = exports.enterRecordMode = exports.onReleaseButton = exports.onPressButton = exports.requestMedia = exports.REQUEST_MEDIA = exports.TOGGLE_RECORD_MODE = exports.EXIT_RECORD_MODE = exports.ENTER_RECORD_MODE = exports.ON_RELEASE_BUTTON = exports.ON_PRESS_BUTTON = undefined;
+exports.toggleRecordMode = exports.exitRecordMode = exports.enterRecordMode = exports.onReleaseButtonRecordMode = exports.onReleaseButtonPlayMode = exports.onPressButtonRecordMode = exports.onPressButtonPlayMode = exports.requestMedia = exports.REQUEST_MEDIA = exports.TOGGLE_RECORD_MODE = exports.EXIT_RECORD_MODE = exports.ENTER_RECORD_MODE = exports.ON_RELEASE_BUTTON_PLAY_MODE = exports.ON_PRESS_BUTTON_PLAY_MODE = exports.ON_RELEASE_BUTTON_RECORD_MODE = exports.ON_PRESS_BUTTON_RECORD_MODE = undefined;
 
 var _audio = __webpack_require__(454);
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
-var ON_PRESS_BUTTON = exports.ON_PRESS_BUTTON = 'ON_PRESS_BUTTON';
-var ON_RELEASE_BUTTON = exports.ON_RELEASE_BUTTON = 'ON_RELEASE_BUTTON';
+var ON_PRESS_BUTTON_RECORD_MODE = exports.ON_PRESS_BUTTON_RECORD_MODE = 'ON_PRESS_BUTTON_RECORD_MODE';
+var ON_RELEASE_BUTTON_RECORD_MODE = exports.ON_RELEASE_BUTTON_RECORD_MODE = 'ON_RELEASE_BUTTON_RECORD_MODE';
+var ON_PRESS_BUTTON_PLAY_MODE = exports.ON_PRESS_BUTTON_PLAY_MODE = 'ON_PRESS_BUTTON_PLAY_MODE';
+var ON_RELEASE_BUTTON_PLAY_MODE = exports.ON_RELEASE_BUTTON_PLAY_MODE = 'ON_RELEASE_BUTTON_PLAY_MODE';
+
 var ENTER_RECORD_MODE = exports.ENTER_RECORD_MODE = 'ENTER_RECORD_MODE';
 var EXIT_RECORD_MODE = exports.EXIT_RECORD_MODE = 'EXIT_RECORD_MODE';
 var TOGGLE_RECORD_MODE = exports.TOGGLE_RECORD_MODE = 'TOGGLE_RECORD_MODE';
@@ -35113,23 +35127,35 @@ var requestMedia = exports.requestMedia = function requestMedia() {
   }();
 };
 
-var onPressButton = exports.onPressButton = function onPressButton(index) {
-  return function (dispatch, getState) {
-    if (getState().MainReducer.isRecordModeActive) (0, _audio.recordStart)(index);else (0, _audio.playAudio)(index);
-    dispatch({
-      type: ON_PRESS_BUTTON,
-      index: index
-    });
+var onPressButtonPlayMode = exports.onPressButtonPlayMode = function onPressButtonPlayMode(index) {
+  (0, _audio.playAudio)(index);
+  return {
+    type: ON_PRESS_BUTTON_PLAY_MODE,
+    index: index
   };
 };
 
-var onReleaseButton = exports.onReleaseButton = function onReleaseButton(index) {
-  return function (dispatch, getState) {
-    if (getState().MainReducer.isRecordModeActive) (0, _audio.recordStop)();else (0, _audio.stopAudio)(index);
-    dispatch({
-      type: ON_RELEASE_BUTTON,
-      index: index
-    });
+var onPressButtonRecordMode = exports.onPressButtonRecordMode = function onPressButtonRecordMode(index) {
+  (0, _audio.recordStart)(index);
+  return {
+    type: ON_PRESS_BUTTON_RECORD_MODE,
+    index: index
+  };
+};
+
+var onReleaseButtonPlayMode = exports.onReleaseButtonPlayMode = function onReleaseButtonPlayMode(index) {
+  (0, _audio.stopAudio)(index);
+  return {
+    type: ON_RELEASE_BUTTON_PLAY_MODE,
+    index: index
+  };
+};
+
+var onReleaseButtonRecordMode = exports.onReleaseButtonRecordMode = function onReleaseButtonRecordMode(index) {
+  (0, _audio.recordStop)();
+  return {
+    type: ON_RELEASE_BUTTON_RECORD_MODE,
+    index: index
   };
 };
 

@@ -4,11 +4,13 @@ import {
   recordStop,
   playAudio,
   stopAudio,
-  recordStopAll,
 } from '../audio'
 
-export const ON_PRESS_BUTTON = 'ON_PRESS_BUTTON'
-export const ON_RELEASE_BUTTON = 'ON_RELEASE_BUTTON'
+export const ON_PRESS_BUTTON_RECORD_MODE = 'ON_PRESS_BUTTON_RECORD_MODE'
+export const ON_RELEASE_BUTTON_RECORD_MODE = 'ON_RELEASE_BUTTON_RECORD_MODE'
+export const ON_PRESS_BUTTON_PLAY_MODE = 'ON_PRESS_BUTTON_PLAY_MODE'
+export const ON_RELEASE_BUTTON_PLAY_MODE = 'ON_RELEASE_BUTTON_PLAY_MODE'
+
 export const ENTER_RECORD_MODE = 'ENTER_RECORD_MODE'
 export const EXIT_RECORD_MODE = 'EXIT_RECORD_MODE'
 export const TOGGLE_RECORD_MODE = 'TOGGLE_RECORD_MODE'
@@ -27,23 +29,38 @@ export const requestMedia = () => async (dispatch, getState) => {
   })
 }
 
-export const onPressButton = index => (dispatch, getState) => {
-  if (getState().MainReducer.isRecordModeActive) recordStart(index)
-  else playAudio(index)
-  dispatch({
-    type: ON_PRESS_BUTTON,
+export const onPressButtonPlayMode = (index) => {
+  playAudio(index)
+  return {
+    type: ON_PRESS_BUTTON_PLAY_MODE,
     index,
-  })
+  }
 }
 
-export const onReleaseButton = (index) => (dispatch, getState) => {
-  if (getState().MainReducer.isRecordModeActive) recordStop()
-  else stopAudio(index)
-  dispatch({
-    type: ON_RELEASE_BUTTON,
+export const onPressButtonRecordMode = (index) => {
+  recordStart(index)
+  return {
+    type: ON_PRESS_BUTTON_RECORD_MODE,
     index,
-  })
+  }
 }
+
+export const onReleaseButtonPlayMode = (index) => {
+  stopAudio(index)
+  return {
+    type: ON_RELEASE_BUTTON_PLAY_MODE,
+    index,
+  }
+}
+
+export const onReleaseButtonRecordMode = (index) => {
+  recordStop()
+  return {
+    type: ON_RELEASE_BUTTON_RECORD_MODE,
+    index,
+  }
+}
+
 
 export const enterRecordMode = () => {
   return {

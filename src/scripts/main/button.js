@@ -2,19 +2,16 @@ import React from 'react'
 import classnames from 'classnames'
 
 export default class Button extends React.Component {
-  constructor(props){
-    super(props)
-    this.onPressButton = this.props.onPress.bind(this, this.props.index)
-    this.onReleaseButton = this.props.onRelease.bind(this, this.props.index)
-  }
   render() {
-    const {isPressed, isRecordModeActive, data, onPressButton, onReleaseButton, index} = this.props
+    const {isPressed, isRecordModeActive, data, onPress, onRelease, index} = this.props
+    const onPressButton = this.props.onPress.bind(this, this.props.index)
+    const onReleaseButton = this.props.onRelease.bind(this, this.props.index)
     return (
       <div
-        onMouseDown={this.onPressButton}
-        onTouchStart={this.onPressButton}
-        onMouseUp={this.onReleaseButton} // todo: move to body to catch exterior clicks
-        onTouchEnd={this.onReleaseButton}
+        onMouseDown={onPressButton}
+        onTouchStart={onPressButton}
+        onMouseUp={onReleaseButton} // todo: move to body to catch exterior clicks
+        onTouchEnd={onReleaseButton}
         className={
           classnames({
             'sampler-button': true,
