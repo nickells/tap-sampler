@@ -4,10 +4,8 @@ import { bindActionCreators } from 'redux'
 import Button from './button'
 import RecordSwitch from './recordswitch'
 import {
-  onPressButtonRecordMode,
-  onPressButtonPlayMode,
-  onReleaseButtonRecordMode,
-  onReleaseButtonPlayMode,
+  onPressButton,
+  onReleaseButton,
   enterRecordMode,
   exitRecordMode,
   toggleRecordMode,
@@ -23,14 +21,10 @@ class Main extends React.Component {
 
   render(){
     const { 
-      onPressButtonPlayMode,
-      onPressButtonRecordMode,
-      onReleaseButtonPlayMode,
-      onReleaseButtonRecordMode,
+      onPressButton,
+      onReleaseButton,
       isRecordModeActive
     } = this.props
-    const pressHandler = isRecordModeActive ? onPressButtonRecordMode : onPressButtonPlayMode
-    const releaseHandler = isRecordModeActive ? onReleaseButtonRecordMode : onReleaseButtonPlayMode
     return (
       <React.Fragment>
         <div className="buttons-container">
@@ -38,8 +32,8 @@ class Main extends React.Component {
             nine.map((item, index) => (
               <Button
                 isPressed={this.props.pressedButtons[index]}
-                onPress={pressHandler}
-                onRelease={releaseHandler}
+                onPress={onPressButton}
+                onRelease={onReleaseButton}
                 index={index}
                 key={`button-${index}`}
                 isRecordModeActive={this.props.isRecordModeActive}
@@ -65,10 +59,8 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  onPressButtonRecordMode,
-  onPressButtonPlayMode,
-  onReleaseButtonRecordMode,
-  onReleaseButtonPlayMode,
+  onPressButton,
+  onReleaseButton,
   enterRecordMode,
   exitRecordMode,
   toggleRecordMode,

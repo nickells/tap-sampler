@@ -1,8 +1,6 @@
 import {
-  ON_PRESS_BUTTON_PLAY_MODE,
-  ON_RELEASE_BUTTON_PLAY_MODE,
-  ON_PRESS_BUTTON_RECORD_MODE,
-  ON_RELEASE_BUTTON_RECORD_MODE,
+  ON_PRESS_BUTTON,
+  ON_RELEASE_BUTTON,
   ENTER_RECORD_MODE,
   EXIT_RECORD_MODE,
   TOGGLE_RECORD_MODE,
@@ -22,8 +20,7 @@ export default (state = initialState, action) => {
       ...state,
       hasMedia: action.hasMedia
     }
-  case ON_PRESS_BUTTON_PLAY_MODE:
-  case ON_PRESS_BUTTON_RECORD_MODE:
+  case ON_PRESS_BUTTON:
     return {
       ...state,
       pressedButtons: {
@@ -31,8 +28,7 @@ export default (state = initialState, action) => {
         [action.index]: true,
       },
     }
-  case ON_RELEASE_BUTTON_PLAY_MODE:
-  case ON_RELEASE_BUTTON_RECORD_MODE:
+  case ON_RELEASE_BUTTON:
     return {
       ...state,
       pressedButtons: {
