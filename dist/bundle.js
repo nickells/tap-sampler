@@ -8065,7 +8065,7 @@ var requestMedia = exports.requestMedia = function requestMedia() {
               _context.prev = 7;
               _context.t0 = _context['catch'](1);
 
-              console.log('error getting media');
+              console.log('error getting media', _context.t0);
 
             case 10:
               dispatch({
@@ -8159,7 +8159,7 @@ var _store = __webpack_require__(445);
 
 var _store2 = _interopRequireDefault(_store);
 
-var _main = __webpack_require__(449);
+var _main = __webpack_require__(450);
 
 var _main2 = _interopRequireDefault(_main);
 
@@ -34977,79 +34977,20 @@ exports.default = function () {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.stopAudio = exports.playAudio = exports.recordStop = exports.recordStart = exports.getMedia = undefined;
+
+var _makeSample = __webpack_require__(449);
+
+var _makeSample2 = _interopRequireDefault(_makeSample);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function makeSample(_index, audioContextInstance, scriptProcessor) {
-  var index = _index;
-  var secondsLength = 3;
-  var channels = 1;
-  var cachedBuffer = context.createBuffer(channels, context.sampleRate * secondsLength, context.sampleRate);
-  var node = undefined;
-
-  // hold data here as it comes in
-  var incomingData = [];
-
-  var onAudioProcess = function onAudioProcess(audioEvent) {
-    var _incomingData;
-
-    console.log('audio process');
-    var array = Array.from(audioEvent.inputBuffer.getChannelData(0));
-    (_incomingData = incomingData).push.apply(_incomingData, _toConsumableArray(array));
-  };
-
-  var emptyBuffer = new Float32Array(context.sampleRate * secondsLength).fill(0);
-
-  return {
-    recordStart: function recordStart() {
-      // Clear the buffer
-      cachedBuffer.copyToChannel(emptyBuffer, 0);
-
-      // Start recording event, but wait for latency
-      setTimeout(function () {
-        scriptProcessor.addEventListener('audioprocess', onAudioProcess);
-      }, context.baseLatency * 1000);
-    },
-    recordStop: function recordStop() {
-      if (incomingData.length === 0) return;
-
-      // Copy contents of incomingData into cached buffer
-      cachedBuffer.copyToChannel(new Float32Array(incomingData), 0);
-
-      // Reset incoming data array
-      incomingData = [];
-
-      // Stop listening
-      scriptProcessor.removeEventListener('audioprocess', onAudioProcess);
-    },
-    playAudio: function playAudio() {
-      // Create a new buffer source
-      node = audioContextInstance.createBufferSource();
-
-      // Attach our cached buffer data to the buffer source
-      node.buffer = cachedBuffer;
-
-      // Connect buffer to the destination
-      node.connect(audioContextInstance.destination);
-
-      // Play
-      node.start();
-    },
-    stopAudio: function stopAudio() {
-      if (!node) return;
-      node.stop();
-    }
-  };
-}
-
 var mediaConstraints = { audio: true };
 var context = new AudioContext();
-console.log('base latency', context.baseLatency);
-console.log('output latency', context.outputLatency);
-
 var samples = [];
+
 var getMedia = exports.getMedia = function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
     var stream, source, processor, i;
@@ -35068,7 +35009,7 @@ var getMedia = exports.getMedia = function () {
             source.connect(processor);
             processor.connect(context.destination);
             for (i = 0; i < 9; i++) {
-              samples[i] = makeSample(i, context, processor);
+              samples[i] = (0, _makeSample2.default)(i, context, processor);
             }
 
           case 8:
@@ -35085,6 +35026,7 @@ var getMedia = exports.getMedia = function () {
 }();
 
 var recordStart = exports.recordStart = function recordStart(i) {
+  console.log(samples);
   return samples[i].recordStart();
 };
 
@@ -35112,6 +35054,135 @@ var stopAudio = exports.stopAudio = function stopAudio(i) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.default = makeSample;
+
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+var waitMilliseconds = function waitMilliseconds(ms) {
+  return new Promise(function (resolve) {
+    return setTimeout(resolve, ms);
+  });
+};
+
+function makeSample(_index, audioContextInstance, scriptProcessor) {
+  var index = _index;
+  var secondsLength = 3;
+  var channels = 1;
+  var cachedBuffer = audioContextInstance.createBuffer(channels, audioContextInstance.sampleRate * secondsLength, audioContextInstance.sampleRate);
+  var node = undefined;
+
+  var latencyMs = audioContextInstance.baseLatency * 1000;
+
+  // hold data here as it comes in
+  var incomingData = [];
+
+  var onAudioProcess = function onAudioProcess(audioProcessingEvent) {
+    var _incomingData;
+
+    var array = Array.from(audioProcessingEvent.inputBuffer.getChannelData(0));
+    (_incomingData = incomingData).push.apply(_incomingData, _toConsumableArray(array));
+  };
+
+  var emptyBuffer = new Float32Array(audioContextInstance.sampleRate * secondsLength).fill(0);
+
+  return {
+    recordStart: function recordStart() {
+      var _this = this;
+
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return waitMilliseconds(latencyMs);
+
+              case 2:
+
+                // Clear the buffer
+                cachedBuffer.copyToChannel(emptyBuffer, 0);
+
+                // Start recording event
+                scriptProcessor.addEventListener('audioprocess', onAudioProcess);
+
+              case 4:
+              case 'end':
+                return _context.stop();
+            }
+          }
+        }, _callee, _this);
+      }))();
+    },
+    recordStop: function recordStop() {
+      var _this2 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return waitMilliseconds(latencyMs);
+
+              case 2:
+                if (!(incomingData.length === 0)) {
+                  _context2.next = 4;
+                  break;
+                }
+
+                return _context2.abrupt('return');
+
+              case 4:
+
+                // Copy contents of incomingData into cached buffer
+                cachedBuffer.copyToChannel(new Float32Array(incomingData), 0);
+
+                // Reset incoming data array
+                incomingData = [];
+
+                // Stop listening
+                scriptProcessor.removeEventListener('audioprocess', onAudioProcess);
+
+              case 7:
+              case 'end':
+                return _context2.stop();
+            }
+          }
+        }, _callee2, _this2);
+      }))();
+    },
+    playAudio: function playAudio() {
+      // Create a new buffer source
+      node = audioContextInstance.createBufferSource();
+
+      // Attach our cached buffer data to the buffer source
+      node.buffer = cachedBuffer;
+
+      // Connect buffer to the destination
+      node.connect(audioContextInstance.destination);
+
+      // Play
+      node.start();
+    },
+    stopAudio: function stopAudio() {
+      if (!node) return;
+      node.stop();
+    }
+  };
+}
+
+/***/ }),
+/* 450 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -35123,11 +35194,11 @@ var _reactRedux = __webpack_require__(156);
 
 var _redux = __webpack_require__(109);
 
-var _button = __webpack_require__(450);
+var _button = __webpack_require__(451);
 
 var _button2 = _interopRequireDefault(_button);
 
-var _recordswitch = __webpack_require__(452);
+var _recordswitch = __webpack_require__(453);
 
 var _recordswitch2 = _interopRequireDefault(_recordswitch);
 
@@ -35219,7 +35290,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Main);
 
 /***/ }),
-/* 450 */
+/* 451 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35235,7 +35306,7 @@ var _react = __webpack_require__(9);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _classnames = __webpack_require__(451);
+var _classnames = __webpack_require__(452);
 
 var _classnames2 = _interopRequireDefault(_classnames);
 
@@ -35301,7 +35372,7 @@ var Button = function (_React$Component) {
 exports.default = Button;
 
 /***/ }),
-/* 451 */
+/* 452 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -35356,7 +35427,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 
 /***/ }),
-/* 452 */
+/* 453 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

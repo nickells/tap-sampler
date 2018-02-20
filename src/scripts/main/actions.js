@@ -24,7 +24,7 @@ export const requestMedia = () => async (dispatch, getState) => {
   try {
     media = await getMedia()
   } catch (e) {
-    console.log('error getting media')
+    console.log('error getting media', e)
   }
   dispatch({
     type: REQUEST_MEDIA,
