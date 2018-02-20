@@ -59,8 +59,8 @@ export const enterRecordMode = () => {
   }
 }
 
-export const exitRecordMode = (index) => {
-  recordStop(index)
+export const exitRecordMode = () => {
+  recordStop()
   return {
     type: EXIT_RECORD_MODE,
   }

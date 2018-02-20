@@ -1,59 +1,97 @@
-const mediaConstraints = { audio: true }
+function makeSample(_index, audioContextInstance, scriptProcessor){
+  const index = _index
+  const secondsLength = 3
+  const channels = 1
+  const cachedBuffer = context.createBuffer(channels, context.sampleRate * secondsLength, context.sampleRate)
+  let node = undefined
 
-const audio = {
-  /*
-    0: {
-      data: float32array
-      node: web audio context buffersource
+  // hold data here as it comes in
+  let incomingData = []
+
+  const onAudioProcess = (audioEvent) => {
+    console.log('audio process')
+    const array = Array.from(audioEvent.inputBuffer.getChannelData(0))
+    incomingData.push(...array)
+  }
+
+  const emptyBuffer = new Float32Array(context.sampleRate * secondsLength).fill(0)
+
+  return {
+    recordStart() {
+      // Clear the buffer
+      cachedBuffer.copyToChannel(emptyBuffer, 0)
+
+      // Start recording event, but wait for latency
+      setTimeout(() => {
+        scriptProcessor.addEventListener('audioprocess', onAudioProcess)
+      }, context.baseLatency * 1000)
+    },
+
+    recordStop() {
+      if (incomingData.length === 0) return
+
+      // Copy contents of incomingData into cached buffer
+      cachedBuffer.copyToChannel(new Float32Array(incomingData), 0)
+
+      // Reset incoming data array
+      incomingData = []
+
+      // Stop listening
+      scriptProcessor.removeEventListener('audioprocess', onAudioProcess)
+    },
+
+    playAudio() {
+      // Create a new buffer source
+      node = audioContextInstance.createBufferSource()
+
+      // Attach our cached buffer data to the buffer source
+      node.buffer = cachedBuffer
+
+      // Connect buffer to the destination
+      node.connect(audioContextInstance.destination)
+
+      // Play
+      node.start()
+    },
+
+    stopAudio(){
+      if (!node) return
+      node.stop()
     }
-
-  */
+  }
 }
 
+const mediaConstraints = { audio: true }
 const context = new AudioContext()
+console.log('base latency', context.baseLatency)
+console.log('output latency', context.outputLatency)
 
-let processor
-export const getMedia = () => navigator.mediaDevices.getUserMedia(mediaConstraints)
-.then(stream => {
+const samples = []
+export const getMedia = async () => {
+  const stream = await navigator.mediaDevices.getUserMedia(mediaConstraints)
   const source = context.createMediaStreamSource(stream)
-  processor = context.createScriptProcessor(undefined, 1, 1);
+  const processor = context.createScriptProcessor(undefined, 1, 1);
   source.connect(processor)
   processor.connect(context.destination)
-})
-.catch((err) => {
-  console.log(`The following gUM error occured: ${err}`);
-})
-
-let onAudioProcess
-let incomingData = []
-export const recordStart = (i) => {
-  const seconds = 3
-  const channels = 1
-  incomingData = []
-  audio[i] = {}
-  audio[i].data = context.createBuffer(channels, context.sampleRate * seconds, context.sampleRate)
-  onAudioProcess = (e) => {
-    const array = Array.from(e.inputBuffer.getChannelData(0))
-    incomingData = incomingData.concat(array)
+  for (let i = 0; i < 9; i++) {
+    samples[i] = makeSample(i, context, processor)
   }
-  processor.addEventListener('audioprocess', onAudioProcess)
+}
+
+
+export const recordStart = (i) => {
+  return samples[i].recordStart()
 }
 
 export const recordStop = (i) => {
-  if (audio[i] && audio[i].data) audio[i].data.copyToChannel(new Float32Array(incomingData), 0)
-  processor.removeEventListener('audioprocess', onAudioProcess)
+  if (!i) samples.forEach(sample => sample.recordStop())
+  else return samples[i].recordStop()
 }
 
 export const playAudio = (i) => {
-  if (!audio[i]) return
-  audio[i].node = context.createBufferSource()
-  audio[i].node.buffer = audio[i].data
-  console.log(audio[i].data.getChannelData(0))
-  audio[i].node.connect(context.destination)
-  audio[i].node.start()
+  return samples[i].playAudio()
 }
 
 export const stopAudio = (i) => {
-  if (!audio[i].node) return
-  audio[i].node.stop()
+  return samples[i].stopAudio()
 }

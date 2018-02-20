@@ -8117,8 +8117,8 @@ var enterRecordMode = exports.enterRecordMode = function enterRecordMode() {
   };
 };
 
-var exitRecordMode = exports.exitRecordMode = function exitRecordMode(index) {
-  (0, _webAudio.recordStop)(index);
+var exitRecordMode = exports.exitRecordMode = function exitRecordMode() {
+  (0, _webAudio.recordStop)();
   return {
     type: EXIT_RECORD_MODE
   };
@@ -34977,63 +34977,129 @@ exports.default = function () {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var mediaConstraints = { audio: true };
 
-var audio = {
-  /*
-    0: {
-      data: float32array
-      node: web audio context buffersource
-    }
-   */
-};
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
-var context = new AudioContext();
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-var processor = void 0;
-var getMedia = exports.getMedia = function getMedia() {
-  return navigator.mediaDevices.getUserMedia(mediaConstraints).then(function (stream) {
-    var source = context.createMediaStreamSource(stream);
-    processor = context.createScriptProcessor(undefined, 1, 1);
-    source.connect(processor);
-    processor.connect(context.destination);
-  }).catch(function (err) {
-    console.log('The following gUM error occured: ' + err);
-  });
-};
-
-var onAudioProcess = void 0;
-var incomingData = [];
-var recordStart = exports.recordStart = function recordStart(i) {
-  var seconds = 3;
+function makeSample(_index, audioContextInstance, scriptProcessor) {
+  var index = _index;
+  var secondsLength = 3;
   var channels = 1;
-  incomingData = [];
-  audio[i] = {};
-  audio[i].data = context.createBuffer(channels, context.sampleRate * seconds, context.sampleRate);
-  onAudioProcess = function onAudioProcess(e) {
-    var array = Array.from(e.inputBuffer.getChannelData(0));
-    incomingData = incomingData.concat(array);
+  var cachedBuffer = context.createBuffer(channels, context.sampleRate * secondsLength, context.sampleRate);
+  var node = undefined;
+
+  // hold data here as it comes in
+  var incomingData = [];
+
+  var onAudioProcess = function onAudioProcess(audioEvent) {
+    var _incomingData;
+
+    console.log('audio process');
+    var array = Array.from(audioEvent.inputBuffer.getChannelData(0));
+    (_incomingData = incomingData).push.apply(_incomingData, _toConsumableArray(array));
   };
-  processor.addEventListener('audioprocess', onAudioProcess);
+
+  var emptyBuffer = new Float32Array(context.sampleRate * secondsLength).fill(0);
+
+  return {
+    recordStart: function recordStart() {
+      // Clear the buffer
+      cachedBuffer.copyToChannel(emptyBuffer, 0);
+
+      // Start recording event, but wait for latency
+      setTimeout(function () {
+        scriptProcessor.addEventListener('audioprocess', onAudioProcess);
+      }, context.baseLatency * 1000);
+    },
+    recordStop: function recordStop() {
+      if (incomingData.length === 0) return;
+
+      // Copy contents of incomingData into cached buffer
+      cachedBuffer.copyToChannel(new Float32Array(incomingData), 0);
+
+      // Reset incoming data array
+      incomingData = [];
+
+      // Stop listening
+      scriptProcessor.removeEventListener('audioprocess', onAudioProcess);
+    },
+    playAudio: function playAudio() {
+      // Create a new buffer source
+      node = audioContextInstance.createBufferSource();
+
+      // Attach our cached buffer data to the buffer source
+      node.buffer = cachedBuffer;
+
+      // Connect buffer to the destination
+      node.connect(audioContextInstance.destination);
+
+      // Play
+      node.start();
+    },
+    stopAudio: function stopAudio() {
+      if (!node) return;
+      node.stop();
+    }
+  };
+}
+
+var mediaConstraints = { audio: true };
+var context = new AudioContext();
+console.log('base latency', context.baseLatency);
+console.log('output latency', context.outputLatency);
+
+var samples = [];
+var getMedia = exports.getMedia = function () {
+  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+    var stream, source, processor, i;
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return navigator.mediaDevices.getUserMedia(mediaConstraints);
+
+          case 2:
+            stream = _context.sent;
+            source = context.createMediaStreamSource(stream);
+            processor = context.createScriptProcessor(undefined, 1, 1);
+
+            source.connect(processor);
+            processor.connect(context.destination);
+            for (i = 0; i < 9; i++) {
+              samples[i] = makeSample(i, context, processor);
+            }
+
+          case 8:
+          case 'end':
+            return _context.stop();
+        }
+      }
+    }, _callee, undefined);
+  }));
+
+  return function getMedia() {
+    return _ref.apply(this, arguments);
+  };
+}();
+
+var recordStart = exports.recordStart = function recordStart(i) {
+  return samples[i].recordStart();
 };
 
 var recordStop = exports.recordStop = function recordStop(i) {
-  if (audio[i] && audio[i].data) audio[i].data.copyToChannel(new Float32Array(incomingData), 0);
-  processor.removeEventListener('audioprocess', onAudioProcess);
+  if (!i) samples.forEach(function (sample) {
+    return sample.recordStop();
+  });else return samples[i].recordStop();
 };
 
 var playAudio = exports.playAudio = function playAudio(i) {
-  if (!audio[i]) return;
-  audio[i].node = context.createBufferSource();
-  audio[i].node.buffer = audio[i].data;
-  console.log(audio[i].data.getChannelData(0));
-  audio[i].node.connect(context.destination);
-  audio[i].node.start();
+  return samples[i].playAudio();
 };
 
 var stopAudio = exports.stopAudio = function stopAudio(i) {
-  if (!audio[i].node) return;
-  audio[i].node.stop();
+  return samples[i].stopAudio();
 };
 
 /***/ }),
