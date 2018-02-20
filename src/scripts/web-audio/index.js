@@ -14,7 +14,6 @@ export const getMedia = async () => {
 }
 
 export const recordStart = (i) => {
-  console.log(samples)
   return samples[i].recordStart()
 }
 

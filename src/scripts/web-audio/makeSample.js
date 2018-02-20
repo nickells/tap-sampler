@@ -19,14 +19,19 @@ export default function makeSample(_index, audioContextInstance, stream){
   }
 
   const emptyBuffer = new Float32Array(audioContextInstance.sampleRate * secondsLength).fill(0)
+
+  // Create new processor
+  processor = audioContextInstance.createScriptProcessor(undefined, 1, 1);
+  processor.connect(audioContextInstance.destination)
+
+  let currentSource
   return {
     async recordStart() {
       await waitMilliseconds(latencyMs)
 
-      const source = audioContextInstance.createMediaStreamSource(stream)
-      processor = audioContextInstance.createScriptProcessor(undefined, 1, 1);
-      source.connect(processor)
-      processor.connect(audioContextInstance.destination)
+      // create new stream source
+      currentSource = audioContextInstance.createMediaStreamSource(stream)
+      currentSource.connect(processor)
       
       // Clear the buffer
       cachedBuffer.copyToChannel(emptyBuffer, 0)
@@ -37,8 +42,11 @@ export default function makeSample(_index, audioContextInstance, stream){
 
     async recordStop() {
       await waitMilliseconds(latencyMs)
-      
+
       if (incomingData.length === 0) return
+
+      // Disconnect audio stream from processor
+      currentSource.disconnect(processor)      
 
       // Copy contents of incomingData into cached buffer
       cachedBuffer.copyToChannel(new Float32Array(incomingData), 0)

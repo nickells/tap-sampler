@@ -35023,7 +35023,6 @@ var getMedia = exports.getMedia = function () {
 }();
 
 var recordStart = exports.recordStart = function recordStart(i) {
-  console.log(samples);
   return samples[i].recordStart();
 };
 
@@ -35084,12 +35083,17 @@ function makeSample(_index, audioContextInstance, stream) {
   };
 
   var emptyBuffer = new Float32Array(audioContextInstance.sampleRate * secondsLength).fill(0);
+
+  // Create new processor
+  processor = audioContextInstance.createScriptProcessor(undefined, 1, 1);
+  processor.connect(audioContextInstance.destination);
+
+  var currentSource = void 0;
   return {
     recordStart: function recordStart() {
       var _this = this;
 
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-        var source;
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -35098,11 +35102,10 @@ function makeSample(_index, audioContextInstance, stream) {
                 return waitMilliseconds(latencyMs);
 
               case 2:
-                source = audioContextInstance.createMediaStreamSource(stream);
 
-                processor = audioContextInstance.createScriptProcessor(undefined, 1, 1);
-                source.connect(processor);
-                processor.connect(audioContextInstance.destination);
+                // create new stream source
+                currentSource = audioContextInstance.createMediaStreamSource(stream);
+                currentSource.connect(processor);
 
                 // Clear the buffer
                 cachedBuffer.copyToChannel(emptyBuffer, 0);
@@ -35110,7 +35113,7 @@ function makeSample(_index, audioContextInstance, stream) {
                 // Start recording event
                 processor.addEventListener('audioprocess', onAudioProcess);
 
-              case 8:
+              case 6:
               case 'end':
                 return _context.stop();
             }
@@ -35139,6 +35142,9 @@ function makeSample(_index, audioContextInstance, stream) {
 
               case 4:
 
+                // Disconnect audio stream from processor
+                currentSource.disconnect(processor);
+
                 // Copy contents of incomingData into cached buffer
                 cachedBuffer.copyToChannel(new Float32Array(incomingData), 0);
 
@@ -35148,7 +35154,7 @@ function makeSample(_index, audioContextInstance, stream) {
                 // Stop listening
                 processor.removeEventListener('audioprocess', onAudioProcess);
 
-              case 7:
+              case 8:
               case 'end':
                 return _context2.stop();
             }
