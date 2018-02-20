@@ -16,7 +16,8 @@ export default class RecordSwitch extends React.Component {
         onClick={hasTouch ? null : onClick }
         style={isPressed ? { border: '1px solid black' } : null}
       >
-        <span>Record</span>
+        { !isPressed ? <span>Enter record mode</span>
+          : <span>Record mode active...</span> }
       </div>
     )
   }

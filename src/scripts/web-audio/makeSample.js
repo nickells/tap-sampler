@@ -1,10 +1,11 @@
 const waitMilliseconds = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-export default function makeSample(_index, audioContextInstance, scriptProcessor){
+export default function makeSample(_index, audioContextInstance, stream){
   const index = _index
   const secondsLength = 3
   const channels = 1
   const cachedBuffer = audioContextInstance.createBuffer(channels, audioContextInstance.sampleRate * secondsLength, audioContextInstance.sampleRate)
+  let processor
   let node = undefined
 
   const latencyMs = audioContextInstance.baseLatency * 1000
@@ -18,16 +19,20 @@ export default function makeSample(_index, audioContextInstance, scriptProcessor
   }
 
   const emptyBuffer = new Float32Array(audioContextInstance.sampleRate * secondsLength).fill(0)
-
   return {
     async recordStart() {
       await waitMilliseconds(latencyMs)
+
+      const source = audioContextInstance.createMediaStreamSource(stream)
+      processor = audioContextInstance.createScriptProcessor(undefined, 1, 1);
+      source.connect(processor)
+      processor.connect(audioContextInstance.destination)
       
       // Clear the buffer
       cachedBuffer.copyToChannel(emptyBuffer, 0)
 
       // Start recording event
-      scriptProcessor.addEventListener('audioprocess', onAudioProcess)
+      processor.addEventListener('audioprocess', onAudioProcess)
     },
 
     async recordStop() {
@@ -42,10 +47,11 @@ export default function makeSample(_index, audioContextInstance, scriptProcessor
       incomingData = []
 
       // Stop listening
-      scriptProcessor.removeEventListener('audioprocess', onAudioProcess)
+      processor.removeEventListener('audioprocess', onAudioProcess)
     },
 
     playAudio() {
+      let start = performance.now()
       // Create a new buffer source
       node = audioContextInstance.createBufferSource()
 
@@ -57,6 +63,7 @@ export default function makeSample(_index, audioContextInstance, scriptProcessor
 
       // Play
       node.start()
+      console.log('done', performance.now() - start)
     },
 
     stopAudio(){

@@ -7,12 +7,9 @@ const samples = []
 
 export const getMedia = async () => {
   const stream = await navigator.mediaDevices.getUserMedia(mediaConstraints)
-  const source = context.createMediaStreamSource(stream)
-  const processor = context.createScriptProcessor(undefined, 1, 1);
-  source.connect(processor)
-  processor.connect(context.destination)
+
   for (let i = 0; i < 9; i++) {
-    samples[i] = makeSample(i, context, processor)
+    samples[i] = makeSample(i, context, stream)
   }
 }
 

@@ -34993,7 +34993,7 @@ var samples = [];
 
 var getMedia = exports.getMedia = function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-    var stream, source, processor, i;
+    var stream, i;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -35003,16 +35003,13 @@ var getMedia = exports.getMedia = function () {
 
           case 2:
             stream = _context.sent;
-            source = context.createMediaStreamSource(stream);
-            processor = context.createScriptProcessor(undefined, 1, 1);
 
-            source.connect(processor);
-            processor.connect(context.destination);
+
             for (i = 0; i < 9; i++) {
-              samples[i] = (0, _makeSample2.default)(i, context, processor);
+              samples[i] = (0, _makeSample2.default)(i, context, stream);
             }
 
-          case 8:
+          case 4:
           case 'end':
             return _context.stop();
         }
@@ -35066,11 +35063,12 @@ var waitMilliseconds = function waitMilliseconds(ms) {
   });
 };
 
-function makeSample(_index, audioContextInstance, scriptProcessor) {
+function makeSample(_index, audioContextInstance, stream) {
   var index = _index;
   var secondsLength = 3;
   var channels = 1;
   var cachedBuffer = audioContextInstance.createBuffer(channels, audioContextInstance.sampleRate * secondsLength, audioContextInstance.sampleRate);
+  var processor = void 0;
   var node = undefined;
 
   var latencyMs = audioContextInstance.baseLatency * 1000;
@@ -35086,12 +35084,12 @@ function makeSample(_index, audioContextInstance, scriptProcessor) {
   };
 
   var emptyBuffer = new Float32Array(audioContextInstance.sampleRate * secondsLength).fill(0);
-
   return {
     recordStart: function recordStart() {
       var _this = this;
 
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+        var source;
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -35100,14 +35098,19 @@ function makeSample(_index, audioContextInstance, scriptProcessor) {
                 return waitMilliseconds(latencyMs);
 
               case 2:
+                source = audioContextInstance.createMediaStreamSource(stream);
+
+                processor = audioContextInstance.createScriptProcessor(undefined, 1, 1);
+                source.connect(processor);
+                processor.connect(audioContextInstance.destination);
 
                 // Clear the buffer
                 cachedBuffer.copyToChannel(emptyBuffer, 0);
 
                 // Start recording event
-                scriptProcessor.addEventListener('audioprocess', onAudioProcess);
+                processor.addEventListener('audioprocess', onAudioProcess);
 
-              case 4:
+              case 8:
               case 'end':
                 return _context.stop();
             }
@@ -35143,7 +35146,7 @@ function makeSample(_index, audioContextInstance, scriptProcessor) {
                 incomingData = [];
 
                 // Stop listening
-                scriptProcessor.removeEventListener('audioprocess', onAudioProcess);
+                processor.removeEventListener('audioprocess', onAudioProcess);
 
               case 7:
               case 'end':
@@ -35154,6 +35157,7 @@ function makeSample(_index, audioContextInstance, scriptProcessor) {
       }))();
     },
     playAudio: function playAudio() {
+      var start = performance.now();
       // Create a new buffer source
       node = audioContextInstance.createBufferSource();
 
@@ -35165,6 +35169,7 @@ function makeSample(_index, audioContextInstance, scriptProcessor) {
 
       // Play
       node.start();
+      console.log('done', performance.now() - start);
     },
     stopAudio: function stopAudio() {
       if (!node) return;
@@ -35340,6 +35345,7 @@ var Button = function (_React$Component) {
 
       var onPressButton = onPress.bind(this, index);
       var onReleaseButton = onRelease.bind(this, index);
+      var recordText = isPressed ? 'Recording...' : 'Hold to record';
       return _react2.default.createElement(
         'div',
         {
@@ -35356,7 +35362,7 @@ var Button = function (_React$Component) {
         isRecordModeActive ? _react2.default.createElement(
           'span',
           null,
-          'Hold to Record'
+          recordText
         ) : _react2.default.createElement(
           'span',
           null,
@@ -35481,10 +35487,14 @@ var RecordSwitch = function (_React$Component) {
           onClick: hasTouch ? null : onClick,
           style: isPressed ? { border: '1px solid black' } : null
         },
-        _react2.default.createElement(
+        !isPressed ? _react2.default.createElement(
           'span',
           null,
-          'Record'
+          'Enter record mode'
+        ) : _react2.default.createElement(
+          'span',
+          null,
+          'Record mode active...'
         )
       );
     }

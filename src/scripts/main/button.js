@@ -6,6 +6,7 @@ export default class Button extends React.Component {
     const { isPressed, isRecordModeActive, data, onPress, onRelease, index} = this.props
     const onPressButton = onPress.bind(this, index)
     const onReleaseButton = onRelease.bind(this, index)
+    const recordText = isPressed ? 'Recording...' : 'Hold to record'
     return (
       <div
         onMouseDown={onPressButton}
@@ -20,7 +21,7 @@ export default class Button extends React.Component {
           })
         }
       >
-        { isRecordModeActive ? <span>Hold to Record</span> : <span>Hold to Play</span> }
+        { isRecordModeActive ? <span>{recordText}</span> : <span>Hold to Play</span> }
       </div>
     )
   }
