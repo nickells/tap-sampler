@@ -20,7 +20,7 @@ export default class Button extends React.Component {
           })
         }
       >
-        { isRecordModeActive ? <span>Click to Record</span> : <span>Click to Play</span> }
+        { isRecordModeActive ? <span>Hold to Record</span> : <span>Hold to Play</span> }
       </div>
     )
   }

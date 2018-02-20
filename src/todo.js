@@ -6,7 +6,7 @@
   • switch from audios into webaudio √
   • make the buffers into constructors √
   • multi-touch buffers √
-  • get around latency
+  • get around latency ?
   • use audioworkers!!
   • toggle between fire+forget and hold to play
   • loop mode (starts on first beat)

@@ -35356,11 +35356,11 @@ var Button = function (_React$Component) {
         isRecordModeActive ? _react2.default.createElement(
           'span',
           null,
-          'Click to Record'
+          'Hold to Record'
         ) : _react2.default.createElement(
           'span',
           null,
-          'Click to Play'
+          'Hold to Play'
         )
       );
     }
