@@ -35163,7 +35163,6 @@ function makeSample(_index, audioContextInstance, stream) {
       }))();
     },
     playAudio: function playAudio() {
-      var start = performance.now();
       // Create a new buffer source
       node = audioContextInstance.createBufferSource();
 
@@ -35175,7 +35174,6 @@ function makeSample(_index, audioContextInstance, stream) {
 
       // Play
       node.start();
-      console.log('done', performance.now() - start);
     },
     stopAudio: function stopAudio() {
       if (!node) return;

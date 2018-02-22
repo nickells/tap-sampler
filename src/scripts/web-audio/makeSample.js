@@ -46,7 +46,7 @@ export default function makeSample(_index, audioContextInstance, stream){
       if (incomingData.length === 0) return
 
       // Disconnect audio stream from processor
-      currentSource.disconnect(processor)      
+      currentSource.disconnect(processor)
 
       // Copy contents of incomingData into cached buffer
       cachedBuffer.copyToChannel(new Float32Array(incomingData), 0)
@@ -59,7 +59,6 @@ export default function makeSample(_index, audioContextInstance, stream){
     },
 
     playAudio() {
-      let start = performance.now()
       // Create a new buffer source
       node = audioContextInstance.createBufferSource()
 
@@ -71,7 +70,6 @@ export default function makeSample(_index, audioContextInstance, stream){
 
       // Play
       node.start()
-      console.log('done', performance.now() - start)
     },
 
     stopAudio(){
