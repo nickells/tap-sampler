@@ -17,6 +17,40 @@ const nine = new Array(9).fill(true)
 class Main extends React.Component {
   componentDidMount(){
     this.props.requestMedia()
+    const qweasdzxc = {
+      81: 0,
+      87: 1,
+      69: 2,
+      65: 3,
+      83: 4,
+      68: 5,
+      90: 6,
+      88: 7,
+      67: 8,
+      32: 'RECORD'
+    }
+    document.addEventListener('keydown', e => {
+      const listener = qweasdzxc[e.keyCode]
+      if (typeof listener === 'number') {
+        if (this.props.pressedButtons[listener]) return
+        this.props.onPressButton(listener)
+      }
+      else if (listener === 'RECORD') {
+        if (this.props.isRecordModeActive) return
+        this.props.enterRecordMode()
+      }
+    })
+    document.addEventListener('keyup', e => {
+      const listener = qweasdzxc[e.keyCode]
+      if (typeof listener === 'number') {
+        if (!this.props.pressedButtons[listener]) return
+        this.props.onReleaseButton(listener)
+      }
+      else if (listener === 'RECORD') {
+        if (!this.props.isRecordModeActive) return
+        this.props.exitRecordMode()
+      }
+    })
   }
 
   render(){
@@ -25,7 +59,6 @@ class Main extends React.Component {
       onReleaseButton,
       isRecordModeActive
     } = this.props
-    console.log(this.props)
     return (
       <React.Fragment>
         <div className="buttons-container">

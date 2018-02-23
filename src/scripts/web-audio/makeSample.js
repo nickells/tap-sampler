@@ -93,7 +93,10 @@ export default function makeSample(_index, audioContextInstance, userMedia){
 
     stopAudio(){
       if (!node) return
-      node.stop()
+      try { node.stop() }
+      catch(e){
+        console.log('tried to stop a node that hasnt started')
+      }
       preparePlayback()
     }
   }

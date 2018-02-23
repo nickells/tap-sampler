@@ -85,9 +85,9 @@ export const exitRecordMode = () => (dispatch, getState) => {
       dispatch(storeVisualization(i))
     }
   }
-  return {
+  dispatch({
     type: EXIT_RECORD_MODE,
-  }
+  })
 }
 
 export const toggleRecordMode = () => {

@@ -20,7 +20,7 @@ class Visualization extends React.Component {
     context.clearRect(0, 0, this.$canvas.width, this.$canvas.height);
     context.fillStyle = '#555'
     data.forEach((height,x) => {
-      context.fillRect(x, (100 - height), 1, 100)
+      context.fillRect(x, (this.$canvas.width - height), 1, this.$canvas.width)
     })
   }
 

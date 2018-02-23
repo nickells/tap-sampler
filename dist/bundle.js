@@ -8148,9 +8148,9 @@ var exitRecordMode = exports.exitRecordMode = function exitRecordMode() {
         dispatch(storeVisualization(i));
       }
     }
-    return {
+    dispatch({
       type: EXIT_RECORD_MODE
-    };
+    });
   };
 };
 
@@ -35292,7 +35292,11 @@ function makeSample(_index, audioContextInstance, userMedia) {
     },
     stopAudio: function stopAudio() {
       if (!node) return;
-      node.stop();
+      try {
+        node.stop();
+      } catch (e) {
+        console.log('tried to stop a node that hasnt started');
+      }
       preparePlayback();
     }
   };
@@ -35351,19 +35355,52 @@ var Main = function (_React$Component) {
   _createClass(Main, [{
     key: 'componentDidMount',
     value: function componentDidMount() {
+      var _this2 = this;
+
       this.props.requestMedia();
+      var qweasdzxc = {
+        81: 0,
+        87: 1,
+        69: 2,
+        65: 3,
+        83: 4,
+        68: 5,
+        90: 6,
+        88: 7,
+        67: 8,
+        32: 'RECORD'
+      };
+      document.addEventListener('keydown', function (e) {
+        var listener = qweasdzxc[e.keyCode];
+        if (typeof listener === 'number') {
+          if (_this2.props.pressedButtons[listener]) return;
+          _this2.props.onPressButton(listener);
+        } else if (listener === 'RECORD') {
+          if (_this2.props.isRecordModeActive) return;
+          _this2.props.enterRecordMode();
+        }
+      });
+      document.addEventListener('keyup', function (e) {
+        var listener = qweasdzxc[e.keyCode];
+        if (typeof listener === 'number') {
+          if (!_this2.props.pressedButtons[listener]) return;
+          _this2.props.onReleaseButton(listener);
+        } else if (listener === 'RECORD') {
+          if (!_this2.props.isRecordModeActive) return;
+          _this2.props.exitRecordMode();
+        }
+      });
     }
   }, {
     key: 'render',
     value: function render() {
-      var _this2 = this;
+      var _this3 = this;
 
       var _props = this.props,
           onPressButton = _props.onPressButton,
           onReleaseButton = _props.onReleaseButton,
           isRecordModeActive = _props.isRecordModeActive;
 
-      console.log(this.props);
       return _react2.default.createElement(
         _react2.default.Fragment,
         null,
@@ -35372,13 +35409,13 @@ var Main = function (_React$Component) {
           { className: 'buttons-container' },
           nine.map(function (item, index) {
             return _react2.default.createElement(_button2.default, {
-              isPressed: _this2.props.pressedButtons[index],
+              isPressed: _this3.props.pressedButtons[index],
               onPress: onPressButton,
               onRelease: onReleaseButton,
               index: index,
               key: 'button-' + index,
-              isRecordModeActive: _this2.props.isRecordModeActive,
-              visualizationData: _this2.props.visualizations[index]
+              isRecordModeActive: _this3.props.isRecordModeActive,
+              visualizationData: _this3.props.visualizations[index]
             });
           }),
           _react2.default.createElement(_recordswitch2.default, {
@@ -35622,17 +35659,19 @@ var Visualization = function (_React$Component) {
   }, {
     key: 'fillCanvas',
     value: function fillCanvas(data) {
+      var _this2 = this;
+
       var context = this.$canvas.getContext('2d');
       context.clearRect(0, 0, this.$canvas.width, this.$canvas.height);
       context.fillStyle = '#555';
       data.forEach(function (height, x) {
-        context.fillRect(x, 100 - height, 1, 100);
+        context.fillRect(x, _this2.$canvas.width - height, 1, _this2.$canvas.width);
       });
     }
   }, {
     key: 'render',
     value: function render() {
-      var _this2 = this;
+      var _this3 = this;
 
       var _props2 = this.props,
           _props2$width = _props2.width,
@@ -35641,7 +35680,7 @@ var Visualization = function (_React$Component) {
           height = _props2$height === undefined ? 100 : _props2$height;
 
       return _react2.default.createElement('canvas', { ref: function ref($canvas) {
-          return _this2.$canvas = $canvas;
+          return _this3.$canvas = $canvas;
         }, width: width, height: height });
     }
   }]);
