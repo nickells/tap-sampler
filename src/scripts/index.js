@@ -5,7 +5,7 @@ import { Provider } from 'react-redux'
 import { ConnectedRouter } from 'react-router-redux'
 import { Route } from 'react-router-dom'
 import store, { history } from './store'
-import Main from './main'
+import UserInterface from './user-interface'
 
 
 class Root extends React.Component {
@@ -19,7 +19,7 @@ class Root extends React.Component {
         <React.Fragment>
           <ConnectedRouter history={history}>
             <React.Fragment>
-              <Route exact path="/" component={Main} />
+              <Route exact path="/" component={UserInterface} />
             </React.Fragment>
           </ConnectedRouter>
         </React.Fragment>

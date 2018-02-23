@@ -2,7 +2,7 @@ import { combineReducers, createStore, applyMiddleware, compose } from 'redux'
 import { routerMiddleware } from 'react-router-redux'
 import thunk from 'redux-thunk'
 import createHistory from 'history/createBrowserHistory'
-import MainReducer from './main/reducer'
+import MainReducer from './user-interface/reducer'
 
 export const history = createHistory()
 const combinedReducers = combineReducers({
@@ -35,8 +35,5 @@ const store = createStore(
   initialState,
   composedEnhancers,
 )
-// store.subscribe(()=>{
-//   console.log('new client state', store.getState());
-// });
 
 export default store

@@ -1,15 +1,15 @@
 import makeSample from './makeSample'
-
+import audioStore from './audioStore'
 
 const mediaConstraints = { audio: true }
 const context = new AudioContext()
 const samples = []
 
 export const getMedia = async () => {
-  const stream = await navigator.mediaDevices.getUserMedia(mediaConstraints)
+  const userMedia = await navigator.mediaDevices.getUserMedia(mediaConstraints)
 
   for (let i = 0; i < 9; i++) {
-    samples[i] = makeSample(i, context, stream)
+    samples[i] = makeSample(i, context, userMedia)
   }
 }
 
@@ -19,7 +19,7 @@ export const recordStart = (i) => {
 
 export const recordStop = (i) => {
   if (!i) samples.forEach(sample => sample.recordStop())
-  else return samples[i].recordStop()
+  else samples[i].recordStop()
 }
 
 export const playAudio = (i) => {
@@ -28,4 +28,8 @@ export const playAudio = (i) => {
 
 export const stopAudio = (i) => {
   return samples[i].stopAudio()
+}
+
+export const getBuffer = (i) => {
+  return audioStore[i]
 }

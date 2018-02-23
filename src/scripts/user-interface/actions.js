@@ -1,15 +1,20 @@
+// 8
+
+import getVisualizationFromBuffer from '../web-audio/getVisualizationFromBuffer'
 import {
   getMedia,
   recordStart,
   recordStop,
   playAudio,
   stopAudio,
+  getBuffer,
 } from '../web-audio'
 
-// export const ON_PRESS_BUTTON_RECORD_MODE = 'ON_PRESS_BUTTON_RECORD_MODE'
-// export const ON_RELEASE_BUTTON_RECORD_MODE = 'ON_RELEASE_BUTTON_RECORD_MODE'
-// export const ON_PRESS_BUTTON_PLAY_MODE = 'ON_PRESS_BUTTON_PLAY_MODE'
-// export const ON_RELEASE_BUTTON_PLAY_MODE = 'ON_RELEASE_BUTTON_PLAY_MODE'
+
+const pipeFunctionsToValue = (startVal, arrayOfFunctions) => {
+  return arrayOfFunctions.reduce((lastVal, currFunc) => currFunc(lastVal), startVal)
+}
+
 
 export const ON_PRESS_BUTTON = 'ON_PRESS_BUTTON'
 export const ON_RELEASE_BUTTON = 'ON_RELEASE_BUTTON'
@@ -18,6 +23,8 @@ export const ENTER_RECORD_MODE = 'ENTER_RECORD_MODE'
 export const EXIT_RECORD_MODE = 'EXIT_RECORD_MODE'
 export const TOGGLE_RECORD_MODE = 'TOGGLE_RECORD_MODE'
 export const REQUEST_MEDIA = 'REQUEST_MEDIA'
+
+export const STORE_VISUALIZATION = 'STORE_VISUALIZATION'
 
 export const requestMedia = () => async (dispatch, getState) => {
   let media = false
@@ -42,9 +49,20 @@ export const onPressButton = (index) => (dispatch, getState) => {
   })
 }
 
+export const storeVisualization = (index) => {
+  const visualizationForOneHundredGrid = (data) => getVisualizationFromBuffer(data, 100, 100)
+  const data = pipeFunctionsToValue(index, [getBuffer, visualizationForOneHundredGrid])
+  return {
+    type: STORE_VISUALIZATION,
+    data,
+    index
+  }
+}
+
 export const onReleaseButton = (index) => (dispatch, getState) => {
   if (getState().MainReducer.isRecordModeActive) {
     recordStop(index)
+    dispatch(storeVisualization(index))
   } else stopAudio(index)
   dispatch({
     type: ON_RELEASE_BUTTON,
@@ -59,8 +77,14 @@ export const enterRecordMode = () => {
   }
 }
 
-export const exitRecordMode = () => {
-  recordStop()
+// Forces everything to recordstop
+export const exitRecordMode = () => (dispatch, getState) => {
+  for (let i = 0; i < 9; i++){
+    if (getState().MainReducer.pressedButtons[i]) {
+      recordStop(i)
+      dispatch(storeVisualization(i))
+    }
+  }
   return {
     type: EXIT_RECORD_MODE,
   }
@@ -71,3 +95,4 @@ export const toggleRecordMode = () => {
     type: TOGGLE_RECORD_MODE
   }
 }
+

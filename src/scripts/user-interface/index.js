@@ -25,6 +25,7 @@ class Main extends React.Component {
       onReleaseButton,
       isRecordModeActive
     } = this.props
+    console.log(this.props)
     return (
       <React.Fragment>
         <div className="buttons-container">
@@ -37,6 +38,7 @@ class Main extends React.Component {
                 index={index}
                 key={`button-${index}`}
                 isRecordModeActive={this.props.isRecordModeActive}
+                visualizationData={this.props.visualizations[index]}
               />
             ))
           }
@@ -55,7 +57,8 @@ class Main extends React.Component {
 const mapStateToProps = state => ({
   audioData: state.MainReducer.audioData,
   pressedButtons: state.MainReducer.pressedButtons,
-  isRecordModeActive: state.MainReducer.isRecordModeActive
+  isRecordModeActive: state.MainReducer.isRecordModeActive,
+  visualizations: state.MainReducer.visualizations
 })
 
 const mapDispatchToProps = dispatch => bindActionCreators({
