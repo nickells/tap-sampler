@@ -1,19 +1,24 @@
 import React from 'react'
+import areArraysEqual from '../deepArrayCompare.js'
 
 class Visualization extends React.Component {
   componentDidMount(){
-    const {data, width = 100, height = 100} = this.props
-    this.fillCanvas.call(this)
+    const { data, width = 100, height = 100 } = this.props
+    this.fillCanvas = this.fillCanvas.bind(this)
+
+    this.fillCanvas(data)
   }
 
   componentWillReceiveProps(nextProps){
-    this.fillCanvas.call(this)
+    if (areArraysEqual(nextProps.data, this.props.data)) return
+    this.fillCanvas(nextProps.data)
   }
 
-  fillCanvas() {
-    const { data } = this.props
+
+  fillCanvas(data) {
     const context = this.$canvas.getContext('2d')
-    context.fillStyle = '#0000FF'
+    context.clearRect(0, 0, this.$canvas.width, this.$canvas.height);
+    context.fillStyle = '#555'
     data.forEach((height,x) => {
       context.fillRect(x, (100 - height), 1, 100)
     })

@@ -35071,9 +35071,7 @@ var rootMeanSquare = function rootMeanSquare(array) {
 
 var getBars = function getBars(buffer, width, height) {
   var resolution = Math.max(Math.floor(buffer.length / width), 1); // how many buffer nums in a pixel
-  var bars = splitArrayBy(buffer, resolution).map(rootMeanSquare).map(function (val) {
-    return Math.abs(val);
-  });
+  var bars = splitArrayBy(buffer, resolution).map(rootMeanSquare);
   var numToHeight = function numToHeight(num) {
     return linearTransform(num, 0, 1, 0, height);
   };
@@ -35580,6 +35578,10 @@ var _react = __webpack_require__(6);
 
 var _react2 = _interopRequireDefault(_react);
 
+var _deepArrayCompare = __webpack_require__(457);
+
+var _deepArrayCompare2 = _interopRequireDefault(_deepArrayCompare);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -35607,20 +35609,22 @@ var Visualization = function (_React$Component) {
           _props$height = _props.height,
           height = _props$height === undefined ? 100 : _props$height;
 
-      this.fillCanvas.call(this);
+      this.fillCanvas = this.fillCanvas.bind(this);
+
+      this.fillCanvas(data);
     }
   }, {
     key: 'componentWillReceiveProps',
     value: function componentWillReceiveProps(nextProps) {
-      this.fillCanvas.call(this);
+      if ((0, _deepArrayCompare2.default)(nextProps.data, this.props.data)) return;
+      this.fillCanvas(nextProps.data);
     }
   }, {
     key: 'fillCanvas',
-    value: function fillCanvas() {
-      var data = this.props.data;
-
+    value: function fillCanvas(data) {
       var context = this.$canvas.getContext('2d');
-      context.fillStyle = '#0000FF';
+      context.clearRect(0, 0, this.$canvas.width, this.$canvas.height);
+      context.fillStyle = '#555';
       data.forEach(function (height, x) {
         context.fillRect(x, 100 - height, 1, 100);
       });
@@ -35719,6 +35723,27 @@ var RecordSwitch = function (_React$Component) {
 }(_react2.default.Component);
 
 exports.default = RecordSwitch;
+
+/***/ }),
+/* 457 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+exports.default = function (init, compare) {
+  if (init.length !== compare.length) return false;
+
+  for (var i = 0; i < init.length; i++) {
+    if (init[i] !== compare[i]) return false;
+  }
+
+  return true;
+};
 
 /***/ })
 /******/ ]);

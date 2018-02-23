@@ -35,7 +35,7 @@ const rootMeanSquare = (array) => {
 const getBars = (buffer, width, height) => {
   const resolution = Math.max(Math.floor(buffer.length / width), 1)  // how many buffer nums in a pixel
   const bars = splitArrayBy(buffer, resolution)
-  .map(rootMeanSquare).map(val => Math.abs(val))
+  .map(rootMeanSquare)
   const numToHeight = num => linearTransform(num, 0, 1, 0, height)
   return bars.map(numToHeight)
 }
