@@ -1,16 +1,11 @@
 /*
   features:
-  • click to record √
-  • record/edit mode√
-  • unholding record should also stop a recording √
-  • switch from audios into webaudio √
-  • make the buffers into constructors √
-  • multi-touch buffers √
+  • Connect the Button component so Visualization updates appropriately
+  • Clear up data flow of visualizations
   • get around latency ?
   • use audioworkers!!
   • toggle between fire+forget and hold to play
   • loop mode (starts on first beat)
-  • visualization on each button?
   • audio effects
   • floor
   • sample editor

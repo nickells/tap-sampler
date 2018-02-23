@@ -87,6 +87,7 @@ export default function makeSample(_index, audioContextInstance, userMedia){
 
     playAudio() {
       // Play
+      if (!node) return
       node.start()
     },
 
