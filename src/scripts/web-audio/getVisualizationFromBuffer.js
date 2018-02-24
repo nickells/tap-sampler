@@ -13,7 +13,7 @@ const splitArrayBy = (array, resolution) => {
   return bars
 }
 
-let linearTransform = (val, startA, endA, startB, endB) => {
+const linearTransform = (val, startA, endA, startB, endB) => {
   const adjustedVal = val - startA
 
   const aRange = endA - startA

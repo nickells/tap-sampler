@@ -1,6 +1,6 @@
 import React from 'react'
 const hasTouch = 'ontouchstart' in window
-console.log(hasTouch)
+import classnames from 'classnames'
 
 export default class RecordSwitch extends React.Component {
   constructor(props){
@@ -14,7 +14,10 @@ export default class RecordSwitch extends React.Component {
         onTouchStart={hasTouch ? onPress : null}
         onTouchEnd={hasTouch ? onRelease : null}
         onClick={hasTouch ? null : onClick }
-        style={isPressed ? { border: '1px solid black' } : null}
+        className={classnames({
+          'sampler-button': true,
+          'is-touched': isPressed
+        })}
       >
         { !isPressed ? <span>Enter record mode</span>
           : <span>Record mode active...</span> }

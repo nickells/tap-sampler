@@ -31,7 +31,7 @@ export default class Button extends React.Component {
         }
       >
         { isRecordModeActive ? <span>{recordText}</span> : <span>Hold to Play</span> }
-        <Visualization data={visualizationData}></Visualization>
+        <Visualization data={visualizationData} width={window.innerWidth / 3} height={window.innerWidth / 3}></Visualization>
       </div>
     )
   }

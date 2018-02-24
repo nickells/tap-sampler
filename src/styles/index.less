@@ -17,11 +17,22 @@ body {
   height: calc(~"100% / @{num-boxes}");
   box-sizing: border-box;
   border: 1px solid transparent;
+  position: relative;
+  transition: transform 100ms ease-in-out;
+  transform: scale(1.0);
+  border: 1px solid grey;
   &.is-touched {
-    border: 1px solid black;
+    transform: scale(0.96);
+    border: 1px solid white;
   }
   &.is-record-mode {
     background-color: white;
+  }
+
+  canvas {
+    position: absolute;
+    bottom: 0;
+    left: 0;
   }
 }
 

@@ -14,15 +14,18 @@ export default function makeSample(_index, audioContextInstance, userMedia){
   
   // Hold the temporary buffersource here
   let node = undefined
+  
+  // hold data here as it comes in
+  let incomingData = []
 
   const latencyMs = audioContextInstance.baseLatency * 1000
 
-  // hold data here as it comes in
-  let incomingData = []
+  const REMOVE_SILENCE = true
 
   // Save incoming data
   const onAudioProcess = (audioProcessingEvent) => {
     const array = Array.from(audioProcessingEvent.inputBuffer.getChannelData(0))
+    if (REMOVE_SILENCE && Math.max(...array) < 0.1 ) return
     incomingData = incomingData.concat(array)
   }
 

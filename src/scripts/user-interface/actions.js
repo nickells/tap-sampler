@@ -50,7 +50,8 @@ export const onPressButton = (index) => (dispatch, getState) => {
 }
 
 export const storeVisualization = (index) => {
-  const visualizationForOneHundredGrid = (data) => getVisualizationFromBuffer(data, 100, 100)
+  const width = window.innerWidth / 3
+  const visualizationForOneHundredGrid = (data) => getVisualizationFromBuffer(data, width, width)
   const data = pipeFunctionsToValue(index, [getBuffer, visualizationForOneHundredGrid])
   return {
     type: STORE_VISUALIZATION,
@@ -69,7 +70,6 @@ export const onReleaseButton = (index) => (dispatch, getState) => {
     index,
   })
 }
-
 
 export const enterRecordMode = () => {
   return {

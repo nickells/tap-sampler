@@ -8109,8 +8109,9 @@ var onPressButton = exports.onPressButton = function onPressButton(index) {
 };
 
 var storeVisualization = exports.storeVisualization = function storeVisualization(index) {
+  var width = window.innerWidth / 3;
   var visualizationForOneHundredGrid = function visualizationForOneHundredGrid(data) {
-    return (0, _getVisualizationFromBuffer2.default)(data, 100, 100);
+    return (0, _getVisualizationFromBuffer2.default)(data, width, width);
   };
   var data = pipeFunctionsToValue(index, [_webAudio.getBuffer, visualizationForOneHundredGrid]);
   return {
@@ -35181,6 +35182,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 var waitMilliseconds = function waitMilliseconds(ms) {
   return new Promise(function (resolve) {
     return setTimeout(resolve, ms);
@@ -35200,14 +35203,17 @@ function makeSample(_index, audioContextInstance, userMedia) {
   // Hold the temporary buffersource here
   var node = undefined;
 
-  var latencyMs = audioContextInstance.baseLatency * 1000;
-
   // hold data here as it comes in
   var incomingData = [];
+
+  var latencyMs = audioContextInstance.baseLatency * 1000;
+
+  var REMOVE_SILENCE = true;
 
   // Save incoming data
   var onAudioProcess = function onAudioProcess(audioProcessingEvent) {
     var array = Array.from(audioProcessingEvent.inputBuffer.getChannelData(0));
+    if (REMOVE_SILENCE && Math.max.apply(Math, _toConsumableArray(array)) < 0.1) return;
     incomingData = incomingData.concat(array);
   };
 
@@ -35533,7 +35539,7 @@ var Button = function (_React$Component) {
           null,
           'Hold to Play'
         ),
-        _react2.default.createElement(_visualization2.default, { data: visualizationData })
+        _react2.default.createElement(_visualization2.default, { data: visualizationData, width: window.innerWidth / 3, height: window.innerWidth / 3 })
       );
     }
   }]);
@@ -35707,7 +35713,13 @@ var _react = __webpack_require__(6);
 
 var _react2 = _interopRequireDefault(_react);
 
+var _classnames = __webpack_require__(454);
+
+var _classnames2 = _interopRequireDefault(_classnames);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -35716,7 +35728,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var hasTouch = 'ontouchstart' in window;
-console.log(hasTouch);
 
 var RecordSwitch = function (_React$Component) {
   _inherits(RecordSwitch, _React$Component);
@@ -35738,13 +35749,15 @@ var RecordSwitch = function (_React$Component) {
 
       return _react2.default.createElement(
         'div',
-        {
+        _defineProperty({
           className: 'sampler-button',
           onTouchStart: hasTouch ? onPress : null,
           onTouchEnd: hasTouch ? onRelease : null,
-          onClick: hasTouch ? null : onClick,
-          style: isPressed ? { border: '1px solid black' } : null
-        },
+          onClick: hasTouch ? null : onClick
+        }, 'className', (0, _classnames2.default)({
+          'sampler-button': true,
+          'is-touched': isPressed
+        })),
         !isPressed ? _react2.default.createElement(
           'span',
           null,
