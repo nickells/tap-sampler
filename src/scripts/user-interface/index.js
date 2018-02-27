@@ -36,6 +36,7 @@ class Main extends React.Component {
         this.props.onPressButton(listener)
       }
       else if (listener === 'RECORD') {
+        e.preventDefault()
         if (this.props.isRecordModeActive) return
         this.props.enterRecordMode()
       }

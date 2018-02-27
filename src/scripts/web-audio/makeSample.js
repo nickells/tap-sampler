@@ -20,7 +20,7 @@ export default function makeSample(_index, audioContextInstance, userMedia){
 
   const latencyMs = audioContextInstance.baseLatency * 1000
 
-  const REMOVE_SILENCE = true
+  const REMOVE_SILENCE = false
 
   // Save incoming data
   const onAudioProcess = (audioProcessingEvent) => {
