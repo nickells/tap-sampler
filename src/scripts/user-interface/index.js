@@ -62,6 +62,7 @@ class Main extends React.Component {
     } = this.props
     return (
       <React.Fragment>
+        <h1>Tapas</h1>
         <div className="buttons-container">
           {
             nine.map((item, index) => (

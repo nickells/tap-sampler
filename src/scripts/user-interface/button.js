@@ -2,6 +2,10 @@ import React from 'react'
 import classnames from 'classnames'
 import Visualization from './visualization'
 
+const getColorForIndex = (index) => {
+  return `hsla(${((360 / 9) * index)}, 100%, 75%, 1)`
+}
+
 export default class Button extends React.Component {
   render() {
     const { 
@@ -15,7 +19,7 @@ export default class Button extends React.Component {
     } = this.props
     const onPressButton = onPress.bind(this, index)
     const onReleaseButton = onRelease.bind(this, index)
-    const recordText = isPressed ? 'Recording...' : 'Hold to record'
+    const recordText = isPressed ? 'Recording...' : 'Hold to Record'
     return (
       <div
         onMouseDown={onPressButton}
@@ -29,9 +33,14 @@ export default class Button extends React.Component {
             'is-record-mode': isRecordModeActive
           })
         }
-      >
-        { isRecordModeActive ? <span>{recordText}</span> : <span>Hold to Play</span> }
-        <Visualization data={visualizationData} width={window.innerWidth / 3} height={window.innerWidth / 3}></Visualization>
+        style={{
+          backgroundColor: getColorForIndex(index)
+        }}
+      > 
+        <div className="content">
+          { isRecordModeActive ? <span>{recordText}</span> : <span>Hold to Play</span> }
+          <Visualization data={visualizationData} width={window.innerWidth / 3} height={window.innerWidth / 3} color={'black'}></Visualization>
+        </div>
       </div>
     )
   }

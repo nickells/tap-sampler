@@ -19,8 +19,10 @@ export default class RecordSwitch extends React.Component {
           'is-touched': isPressed
         })}
       >
+        <div className="content">
         { !isPressed ? <span>Enter record mode</span>
           : <span>Record mode active...</span> }
+        </div>
       </div>
     )
   }

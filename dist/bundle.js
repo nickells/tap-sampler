@@ -35245,6 +35245,8 @@ var waitMilliseconds = function waitMilliseconds(ms) {
   });
 };
 
+var REMOVE_INITIAL_SILENCE = true;
+
 function makeSample(_index, audioContextInstance, userMedia) {
   var index = _index;
   var secondsLength = 3;
@@ -35263,12 +35265,20 @@ function makeSample(_index, audioContextInstance, userMedia) {
 
   var latencyMs = audioContextInstance.baseLatency * 1000;
 
-  var REMOVE_SILENCE = true;
+  // Toggle switch to cut initial silence
+  var awaitingAudio = true;
 
   // Save incoming data
   var onAudioProcess = function onAudioProcess(audioProcessingEvent) {
     var array = Array.from(audioProcessingEvent.inputBuffer.getChannelData(0));
-    if (REMOVE_SILENCE && Math.max.apply(Math, _toConsumableArray(array)) < 0.1) return;
+    if (REMOVE_INITIAL_SILENCE) {
+      if (awaitingAudio) {
+        if (Math.max.apply(Math, _toConsumableArray(array)) < .01) {
+          console.log('skip');
+          return;
+        } else awaitingAudio = false;
+      }
+    }
     incomingData = incomingData.concat(array);
   };
 
@@ -35345,6 +35355,9 @@ function makeSample(_index, audioContextInstance, userMedia) {
 
       // Set up playable buffer
       preparePlayback();
+
+      // Reset audio floor switch (if applicable)
+      awaitingAudio = true;
     },
     playAudio: function playAudio() {
       // Play
@@ -35467,6 +35480,11 @@ var Main = function (_React$Component) {
         _react2.default.Fragment,
         null,
         _react2.default.createElement(
+          'h1',
+          null,
+          'Tapas'
+        ),
+        _react2.default.createElement(
           'div',
           { className: 'buttons-container' },
           nine.map(function (item, index) {
@@ -35549,6 +35567,10 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var getColorForIndex = function getColorForIndex(index) {
+  return 'hsla(' + 360 / 9 * index + ', 100%, 75%, 1)';
+};
+
 var Button = function (_React$Component) {
   _inherits(Button, _React$Component);
 
@@ -35572,7 +35594,7 @@ var Button = function (_React$Component) {
 
       var onPressButton = onPress.bind(this, index);
       var onReleaseButton = onRelease.bind(this, index);
-      var recordText = isPressed ? 'Recording...' : 'Hold to record';
+      var recordText = isPressed ? 'Recording...' : 'Hold to Record';
       return _react2.default.createElement(
         'div',
         {
@@ -35584,18 +35606,25 @@ var Button = function (_React$Component) {
             'sampler-button': true,
             'is-touched': isPressed,
             'is-record-mode': isRecordModeActive
-          })
+          }),
+          style: {
+            backgroundColor: getColorForIndex(index)
+          }
         },
-        isRecordModeActive ? _react2.default.createElement(
-          'span',
-          null,
-          recordText
-        ) : _react2.default.createElement(
-          'span',
-          null,
-          'Hold to Play'
-        ),
-        _react2.default.createElement(_visualization2.default, { data: visualizationData, width: window.innerWidth / 3, height: window.innerWidth / 3 })
+        _react2.default.createElement(
+          'div',
+          { className: 'content' },
+          isRecordModeActive ? _react2.default.createElement(
+            'span',
+            null,
+            recordText
+          ) : _react2.default.createElement(
+            'span',
+            null,
+            'Hold to Play'
+          ),
+          _react2.default.createElement(_visualization2.default, { data: visualizationData, width: window.innerWidth / 3, height: window.innerWidth / 3, color: 'black' })
+        )
       );
     }
   }]);
@@ -35651,26 +35680,27 @@ var Visualization = function (_React$Component) {
           _props$width = _props.width,
           width = _props$width === undefined ? 100 : _props$width,
           _props$height = _props.height,
-          height = _props$height === undefined ? 100 : _props$height;
+          height = _props$height === undefined ? 100 : _props$height,
+          color = _props.color;
 
       this.fillCanvas = this.fillCanvas.bind(this);
 
-      this.fillCanvas(data);
+      this.fillCanvas(data, color);
     }
   }, {
     key: 'componentWillReceiveProps',
     value: function componentWillReceiveProps(nextProps) {
       if ((0, _deepArrayCompare2.default)(nextProps.data, this.props.data)) return;
-      this.fillCanvas(nextProps.data);
+      this.fillCanvas(nextProps.data, nextProps.color);
     }
   }, {
     key: 'fillCanvas',
-    value: function fillCanvas(data) {
+    value: function fillCanvas(data, color) {
       var _this2 = this;
 
       var context = this.$canvas.getContext('2d');
       context.clearRect(0, 0, this.$canvas.width, this.$canvas.height);
-      context.fillStyle = '#555';
+      context.fillStyle = color;
       data.forEach(function (height, x) {
         context.fillRect(x, _this2.$canvas.width - height, 1, _this2.$canvas.width);
       });
@@ -35780,14 +35810,18 @@ var RecordSwitch = function (_React$Component) {
           'sampler-button': true,
           'is-touched': isPressed
         })),
-        !isPressed ? _react2.default.createElement(
-          'span',
-          null,
-          'Enter record mode'
-        ) : _react2.default.createElement(
-          'span',
-          null,
-          'Record mode active...'
+        _react2.default.createElement(
+          'div',
+          { className: 'content' },
+          !isPressed ? _react2.default.createElement(
+            'span',
+            null,
+            'Enter record mode'
+          ) : _react2.default.createElement(
+            'span',
+            null,
+            'Record mode active...'
+          )
         )
       );
     }

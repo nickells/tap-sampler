@@ -2,6 +2,8 @@ import audioStore from './audioStore'
 
 const waitMilliseconds = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
+const REMOVE_INITIAL_SILENCE = true
+
 export default function makeSample(_index, audioContextInstance, userMedia){
   const index = _index
   const secondsLength = 3
@@ -20,12 +22,20 @@ export default function makeSample(_index, audioContextInstance, userMedia){
 
   const latencyMs = audioContextInstance.baseLatency * 1000
 
-  const REMOVE_SILENCE = true
+  // Toggle switch to cut initial silence
+  let awaitingAudio = true
 
   // Save incoming data
   const onAudioProcess = (audioProcessingEvent) => {
     const array = Array.from(audioProcessingEvent.inputBuffer.getChannelData(0))
-    if (REMOVE_SILENCE && Math.max(...array) < 0.1 ) return
+    if (REMOVE_INITIAL_SILENCE) {
+      if (awaitingAudio) {
+        if (Math.max(...array) < .01) {
+          console.log('skip')
+          return
+        } else awaitingAudio = false
+      }
+    }
     incomingData = incomingData.concat(array)
   }
 
@@ -86,6 +96,9 @@ export default function makeSample(_index, audioContextInstance, userMedia){
 
       // Set up playable buffer
       preparePlayback()
+
+      // Reset audio floor switch (if applicable)
+      awaitingAudio = true
     },
 
     playAudio() {
