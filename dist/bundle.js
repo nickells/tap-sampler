@@ -35252,7 +35252,7 @@ function makeSample(_index, audioContextInstance, userMedia) {
   var cachedBuffer = audioContextInstance.createBuffer(channels, audioContextInstance.sampleRate * secondsLength, audioContextInstance.sampleRate);
 
   // Create new processor to copy our data
-  var processor = audioContextInstance.createScriptProcessor(512, 1, 1);
+  var processor = audioContextInstance.createScriptProcessor(0, 1, 1);
   processor.connect(audioContextInstance.destination);
 
   // Hold the temporary buffersource here
@@ -35263,7 +35263,7 @@ function makeSample(_index, audioContextInstance, userMedia) {
 
   var latencyMs = audioContextInstance.baseLatency * 1000;
 
-  var REMOVE_SILENCE = false;
+  var REMOVE_SILENCE = true;
 
   // Save incoming data
   var onAudioProcess = function onAudioProcess(audioProcessingEvent) {
@@ -35451,9 +35451,6 @@ var Main = function (_React$Component) {
           if (!_this2.props.isRecordModeActive) return;
           _this2.props.exitRecordMode();
         }
-      });
-      document.addEventListener('touchstart', function (e) {
-        e.preventDefault();
       });
     }
   }, {
