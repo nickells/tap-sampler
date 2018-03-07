@@ -19,9 +19,20 @@ class Visualization extends React.Component {
     const context = this.$canvas.getContext('2d')
     context.clearRect(0, 0, this.$canvas.width, this.$canvas.height);
     context.fillStyle = color
-    data.forEach((height,x) => {
-      context.fillRect(x, (this.$canvas.width - height), 1, this.$canvas.width)
-    })
+    if (false) {
+      data.forEach((height,x) => {
+        context.fillRect(x, (this.$canvas.width - height), 1, this.$canvas.width)
+      })
+    } else {
+      context.beginPath()
+      context.lineWidth=0.5
+      context.moveTo(0, this.$canvas.height / 2)
+      context.strokeStyle = color
+      data.forEach((height, x) => {
+        context.lineTo(x, height);
+        context.stroke();
+      })
+    }
   }
 
   render() {

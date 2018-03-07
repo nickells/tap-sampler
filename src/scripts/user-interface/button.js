@@ -19,7 +19,8 @@ export default class Button extends React.Component {
     } = this.props
     const onPressButton = onPress.bind(this, index)
     const onReleaseButton = onRelease.bind(this, index)
-    const recordText = isPressed ? 'Recording...' : 'Hold to Record'
+    const recordText = isPressed ? 'Recording...' : 'Record'
+    const canvasSize = ((window.innerWidth / 3) * .9) - 10
     return (
       <div
         onMouseDown={onPressButton}
@@ -33,13 +34,12 @@ export default class Button extends React.Component {
             'is-record-mode': isRecordModeActive
           })
         }
-        style={{
-          backgroundColor: getColorForIndex(index)
-        }}
       > 
-        <div className="content">
-          { isRecordModeActive ? <span>{recordText}</span> : <span>Hold to Play</span> }
-          <Visualization data={visualizationData} width={window.innerWidth / 3} height={window.innerWidth / 3} color={'black'}></Visualization>
+        <div className="content" style={{
+          borderColor: getColorForIndex(index)
+        }}>
+          { isRecordModeActive ? <span>{recordText}</span> : <span>Play</span> }
+          <Visualization data={visualizationData} width={canvasSize} height={canvasSize} color={'black'}></Visualization>
         </div>
       </div>
     )

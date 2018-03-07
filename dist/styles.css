@@ -1,11 +1,10 @@
 body {
-  background: white;
-  font-family: "Input Mono Condensed";
+  background: #555;
+  font-family: 'Righteous', cursive;
   margin: 0;
   padding: 0;
   font-size: 18px;
   text-transform: lowercase;
-  font-style: italic;
   font-weight: 300;
 }
 h1 {
@@ -15,50 +14,39 @@ h1 {
   user-select: none;
   display: inline-block;
   text-align: center;
-  background-color: lightgrey;
+  background-color: transparent;
   flex-basis: calc(100% / 3);
   width: calc(100% / 3);
   height: calc(100% / 3);
   box-sizing: border-box;
-  border: 1px solid transparent;
   position: relative;
   transform: scale(1);
-  border: 1px solid rgba(0, 0, 0, 0.4);
   overflow: hidden;
-}
-aaa .sampler-button.is-record-mode {
-  background-color: white;
-}
-.sampler-button:nth-child(3n + 2) {
-  border-left: 0px;
-  border-right: 0px;
-}
-.sampler-button:nth-child(-n+6) {
-  border-bottom: 0px;
-}
-.sampler-button:last-child {
-  border-top: 0px;
+  color: white;
 }
 .sampler-button .content {
-  width: 100%;
-  height: 100%;
-  transition: transform 100ms ease-in-out;
+  width: 90%;
+  height: 90%;
+  margin-left: 5%;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 15px;
+  padding: 10px;
   box-sizing: border-box;
+  border: 5px solid grey;
+  background-color: #555;
+  transition: border 100ms ease-in-out;
 }
 .sampler-button.is-touched .content {
-  transform: scale(1.02);
-  opacity: 0.8;
-  background-color: rgba(255, 255, 255, 0.5);
+  border-width: 15px;
+  transition: none;
 }
 .sampler-button canvas {
   position: absolute;
-  bottom: 0;
+  margin-left: auto;
+  margin-right: auto;
   left: 0;
-  opacity: 0.5;
+  right: 0;
 }
 .buttons-container {
   width: 100vw;

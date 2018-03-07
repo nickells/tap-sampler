@@ -32,7 +32,9 @@ const rootMeanSquare = (array) => {
   return Math.sqrt(arithmeticMean)
 }
 
-const getBars = (buffer, width, height) => {
+const average = (array) => sum(array) / array.length
+
+const getBarsPositive = (buffer, width, height) => {
   const resolution = Math.max(Math.floor(buffer.length / width), 1)  // how many buffer nums in a pixel
   const bars = splitArrayBy(buffer, resolution)
   .map(rootMeanSquare)
@@ -40,6 +42,13 @@ const getBars = (buffer, width, height) => {
   return bars.map(numToHeight)
 }
 
-module.exports = getBars
+const getBarsPosNeg = (buffer, width, height) => {
+  const resolution = Math.max(Math.floor(buffer.length / width), 1)  // how many buffer nums in a pixel
+  const bars = splitArrayBy(buffer, resolution).map(average)
+  const numToHeight = num => linearTransform(num, -1, 1, 0, height)
+  return bars.map(numToHeight)
+}
+
+module.exports = getBarsPosNeg
 
 
