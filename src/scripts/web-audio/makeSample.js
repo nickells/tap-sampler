@@ -3,6 +3,7 @@ import audioStore from './audioStore'
 const waitMilliseconds = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
 const REMOVE_INITIAL_SILENCE = true
+const CHOKE = false
 
 export default function makeSample(_index, audioContextInstance, userMedia){
   const index = _index
@@ -31,9 +32,11 @@ export default function makeSample(_index, audioContextInstance, userMedia){
     if (REMOVE_INITIAL_SILENCE) {
       if (awaitingAudio) {
         if (Math.max(...array) < .01) {
-          console.log('skip')
           return
-        } else awaitingAudio = false
+        } else {
+          array.fill(0)
+          awaitingAudio = false
+        }
       }
     }
     incomingData = incomingData.concat(array)
@@ -109,9 +112,11 @@ export default function makeSample(_index, audioContextInstance, userMedia){
 
     stopAudio(){
       if (!node) return
-      try { node.stop() }
-      catch(e){
-        console.log('tried to stop a node that hasnt started')
+      if (CHOKE) {
+        try { node.stop() }
+        catch(e){
+          console.log('tried to stop a node that hasnt started')
+        }
       }
       preparePlayback()
     }
